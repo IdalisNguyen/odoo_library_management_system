@@ -1,0 +1,149 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_books_category_form">
+            <field name="name">view.category.form</field>
+            <field name="model">books.category</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_category_tree">
+            <field name="name">category.tree</field>
+            <field name="model">books.category</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name" />
+
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_category">
+            <field name="name">Book Category</field>
+            <field name="res_model">books.category</field>
+            <field name="view_mode">tree,form</field>
+
+        </record>
+
+        <record id="shelf_form" model="ir.ui.view">
+            <field name="name">Library shelf form</field>
+            <field name="model">library.shelf</field>
+            <field name="arch" type="xml">
+                <form string="Authors">
+                    <sheet>
+                        <group>
+                            <field name="name" />
+                            <field name="rack_id"/>
+                            <field name="default_quantity" />
+                            <field name="quantity" />
+                        </group>
+                            <field name="book_copies_ids"   string="Sach Trong Ke"/> 
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Tree View Of Library Shelf -->
+        <record id="shelf_tree" model="ir.ui.view">
+            <field name="name">Library Shelf Tree</field>
+            <field name="model">library.shelf</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="name" required="1"/>
+                    <field name="quantity"></field>
+
+                </tree>
+            </field>
+        </record>
+        <!-- Search View Of Library Shelf -->
+        <record id="shelf_search" model="ir.ui.view">
+            <field name="name">Library Shelf Search</field>
+            <field name="model">library.shelf</field>
+            <field name="arch" type="xml">
+                <search string="Shelf">
+                    <field name="name" />
+                    <field name="quantity"></field>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_library_shelf_graph">
+            <field name="name">library shelf graph</field>
+            <field name="model">library.shelf</field>
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="name" />
+                    <field name="quantity" />
+                </graph>
+            </field>
+        </record>
+        <!-- Actions Of Form & Tree Views Of Library shelf -->
+
+        <record model="ir.actions.act_window" id="action_book_shelf">
+            <field name="name">Kệ Sách Thư Viện</field>
+            <field name="res_model">library.shelf</field>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+
+        <!-- Form View Of Library Rack -->
+        <record id="rack_form" model="ir.ui.view">
+            <field name="name">Library Rack</field>
+            <field name="model">library.rack</field>
+            <field name="arch" type="xml">
+                <form string="Authors">
+                    <sheet>
+                        <group>
+                            <field name="name_category"/>
+                            <field name="name" />
+                            <field name="code" />
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="library_shelf_ids" widget="many2many_tags" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Tree View Of Library Rack -->
+        <record id="rack_tree" model="ir.ui.view">
+            <field name="name">Library Rack Tree</field>
+            <field name="model">library.rack</field>
+            <field name="arch" type="xml">
+                <tree string="Authors">
+                    <field name="name_category"/>
+                    <field name="name" />
+                    <field name="code" />
+                    <field name="active" />
+                    <field name="library_shelf_ids" widget="many2many_tags" />
+                </tree>
+            </field>
+        </record>
+        <!-- Search View Of Library Rack -->
+        <record id="rack_search" model="ir.ui.view">
+            <field name="name">Library Rack Search</field>
+            <field name="model">library.rack</field>
+            <field name="arch" type="xml">
+                <search string="Authors">
+                    <field name="name_category"/>
+                    <field name="name" />
+                    <field name="code" />
+                    <field name="active" />
+                    <filter name="archived" string="Archived" domain="[('active','=',False)]" />
+                </search>
+            </field>
+        </record>
+        <!-- Actions Of Form & Tree Views Of Library Rack -->
+        <record id="action_book_rack" model="ir.actions.act_window">
+            <field name="name">Giá Sách Thư Viện</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">library.rack</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

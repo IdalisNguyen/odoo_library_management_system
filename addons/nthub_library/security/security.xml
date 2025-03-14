@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="library_test_category" model="ir.module.category">
+            <field name="name">Library</field>
+            <field name="sequence" eval="1"/>
+        </record>
+        <record id="library_group_user" model="res.groups">
+            <field name="name">user</field>
+            <field name="category_id" ref="nthub_library.library_test_category"/>
+        </record>
+        <record id="library_group_manger" model="res.groups">
+            <field name="name">manager</field>
+            <field name="category_id" ref="nthub_library.library_test_category"/>
+            <field name="implied_ids" eval="[(4,ref('nthub_library.library_group_user'))]"/>
+        </record>
+
+
+    </data>
+</odoo>

@@ -1,0 +1,93 @@
+<odoo>
+  <data>
+    <record id="product_template_inherit" model="ir.ui.view">
+      <field name="name">product.template.inherited</field>
+      <field name="model">product.template</field>
+      <field name="inherit_id" ref="product.product_template_kanban_view"/>
+      <field name="arch" type="xml">
+        <!-- Chèn thông tin số lượng tồn kho ngay sau product_properties -->
+        <xpath expr="//field[@name='product_properties']" position="after">
+          <div name="product_lst_quantity" class="mt-1">
+            Quantity: <field name="stock_quantity"/>
+          </div>
+        </xpath>
+      </field>
+    </record>
+
+        <record model="ir.ui.view" id="product_template_form_view_inherit">
+            <field name="name">product.template.form.view.inherited</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+              <!-- <xpath expr="//div[@name='options']" position="after">   
+       
+
+              </xpath> -->
+            <xpath expr="//page[@name='general_information']" position="attributes">
+              <attribute name="invisible">1</attribute>
+            </xpath>
+            <!-- <xpath expr="//group[@name='group_standard_price']" position="attributes">
+              <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//group//field[@name='description']" position="attributes">
+              <attribute name="invisible">1</attribute>
+            </xpath> -->
+            <xpath expr="//page[@name='sales']" position="before">
+              <page name="book_information" string= "Thông tin Sách">
+                <group name="book_information">
+                    <group>
+                        <field name="language"/>
+                        <field name="description"/>
+                        <field name="vergion"/>
+                        <field name="ispn"/>
+                        <field name="author_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                        <field name="number_of_pages"/>
+                    </group>
+                    <group>
+                        <field name="color" widget="color_picker"/>
+                        <field name="invoice"/>
+
+
+                    </group>
+                </group>    
+              </page>
+              <page name="category_book" string="Danh Mục Sách">
+                  <group name="old_rack" string="Chọn kệ Sách">
+                      <group>
+                        <field name="select_rack"/>
+                        <field name="category_ids" string="Danh mục"/>
+                      </group>
+                  </group>
+                  <group name="new_rack" string="Chọn Giá sách hiện có" invisible="select_rack != 'old'">
+                    <group>
+                      <field name="available_shelf_ids" invisible="1"/>
+                      <field name="rack"/>
+                      <field name="library_shelf" string="Kệ Sách" invisible="rack == False" domain="[('id', 'in', available_shelf_ids)]"/>
+                    </group>
+                  </group>
+
+                  <group name="new_rack_create" string="Tạo kệ Sách mới" invisible="select_rack != 'new'">
+                    <group>
+                      <field name="name_rack"/>
+                      <field name="code_rack"/>
+                      <field name="active_rack"/>
+                      <field name="library_shelf_ids" widget="many2many_tags"/>
+                    </group>
+
+
+                  </group>
+              </page>
+
+              
+          
+       
+              
+            </xpath>
+        </field>
+    </record>
+
+
+
+  </data>
+</odoo>

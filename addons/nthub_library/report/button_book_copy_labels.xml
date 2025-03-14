@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record id="view_picking_form_inherit_library" model="ir.ui.view">
+            <field name="name">purchase.order.form.inherit.library</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <!-- Chèn nút sau nút "Print Labels" -->
+                <xpath expr="//button[@name='action_create_invoice']" position="after">
+                    <button string="In Nhãn" type="object" name="action_print_library_labels" invisible="state not in ('purchase', 'done') or invoice_status in ('no', 'invoiced')" class="oe_highlight" />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,73 @@
+<odoo>
+    <data>
+        <!--        tree & state=running-->
+        <record model="ir.actions.act_window" id="act_borrows_running">
+            <field name="name">Running Borrows</field>
+            <field name="res_model">books.borrows</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="nthub_library.view_borrows_tree"/>
+            <field name="context">{'default_state':'running'}</field>
+            <field name="domain">[('state', '=', 'running')]</field>
+        </record>
+        <!--tree $ state = delayed -->
+        <record model="ir.actions.act_window" id="act_borrows_delayed">
+            <field name="name">delayed Borrows</field>
+            <field name="res_model">books.borrows</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="nthub_library.view_borrows_tree"/>
+            <field name="context">{'default_state':'delayed'}</field>
+            <field name="domain">[('state', '=', 'delayed')]</field>
+        </record>
+        <!--graph-->
+        <record model="ir.actions.act_window" id="act_borrows_graph">
+            <field name="name">delayed Borrows</field>
+            <field name="res_model">books.borrows</field>
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="nthub_library.view_borrows_graph"/>
+        </record>
+        <!--pivot-->
+        <record model="ir.actions.act_window" id="act_borrows_tpivot">
+            <field name="name">Pivot Borrows</field>
+            <field name="res_model">books.borrows</field>
+            <field name="view_mode">pivot</field>
+            <field name="view_id" ref="nthub_library.view_borrows_pivot"/>
+        </record>
+
+        <record model="ir.ui.view" id="dashboard_form_view">
+            <field name="name">Dashboard</field>
+            <field name="model">board.board</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Dashboard">
+                    <board style="2-1">
+                        <column>
+                            <action string="Running Borrows"
+                                    name="%(act_borrows_running)d"
+                                    height="150"
+                                    width="510"/>
+                            <action string="graph Borrows"
+                                    name="%(act_borrows_graph)d"
+                                    height="150"
+                                    width="510"/>
+                        </column>
+                        <column>
+                            <action string="Delayed Borrows"
+                                    name="%(act_borrows_delayed)d"
+                                    height="150"
+                                    width="510"/>
+                            <action string="Pivot Borrows"
+                                    name="%(act_borrows_tpivot)d"/>
+                        </column>
+                    </board>
+                </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="open_board_my_dash_action">
+            <field name="name">Dashboard</field>
+            <field name="res_model">board.board</field>
+            <field name="view_mode">form</field>
+            <field name="usage">menu</field>
+            <field name="view_id" ref="nthub_library.dashboard_form_view"/>
+        </record>
+    </data>
+</odoo>

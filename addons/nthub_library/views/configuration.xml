@@ -1,0 +1,45 @@
+<odoo>
+    <data>
+        <record id="res_config_settings_view_form_library" model="ir.ui.view">
+            <field name="name">res_config_settings_view_form_library</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="15"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form[hasclass('oe_form_configuration')]" position="inside">
+                    <app data-string="Library" string="Report" name="nthub_library">
+                        <block title="Report">
+                            <setting help="note Message">
+                                <field name="message"/>
+                            </setting>
+                        </block>
+                    </app>
+<!--                    <div class="app_settings_block" data-string="library"-->
+<!--                         string="Report"-->
+<!--                         data-key="library">-->
+<!--                        <h2>Report</h2>-->
+<!--                        <div class="row mt16 o_settings_container">-->
+<!--                            <div class="col-12 col-lg-6 o_setting_box">-->
+<!--                                <div class="o_setting_right_pane">-->
+<!--                                    <span class="o_form_label">Message</span>-->
+<!--                                    <div class="text-muted content-group mt16">-->
+<!--                                        <field name="message" class="text-center oe_inline"/>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+                </xpath>
+            </field>
+        </record>
+        <record id="library_conf" model="ir.actions.act_window">
+            <field name="name">Configration</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module' : 'nthub_library'}</field>
+        </record>
+
+    </data>
+</odoo>

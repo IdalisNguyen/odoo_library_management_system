@@ -1,0 +1,60 @@
+<odoo>
+    <data>
+        <report
+
+                id="report_borrows"
+                model="books.borrows"
+                string="Borrows Report"
+                name="nthub_library.report_borrows_view"
+                report_type="qweb-html"/>
+
+        <template id="report_borrows_view">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <table class="table table-bordered">
+                            <h2 t_field="doc.name"/>
+                            <tr>
+                                <group>
+                                    <group>
+                                        <th>name</th>
+                                        <th>state</th>
+                                        <th>start_borrow</th>
+                                    </group>
+                                    <group>
+                                        <th>end_borrow</th>
+                                        <th>Received Date</th>
+                                        <th>Book Copy</th>
+                                    </group>
+                                </group>
+                            </tr>
+                            <t t-foreach="docs" t-as="o">
+                                <tr>
+                                    <td>
+                                        <span t-raw="o.name.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o.state"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o.start_borrow"/>
+                                    </td>
+                                    <td>
+                                        <span t-raw="o.end_borrow"/>
+                                    </td>
+                                    <td>
+                                        <span t-raw="o.received_date"/>
+                                    </td>
+                                    <td>
+                                        <span t-raw="o.book_copy_id.name"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
+

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Định nghĩa báo cáo -->
+        <record id="library_label_report_action" model="ir.actions.report">
+            <field name="name">Library Label Report</field>
+            <field name="model">purchase.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">nthub_library.library_label_report_template</field>
+            <field name="report_file">nthub_library.library_label_report_template</field>
+            <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+        </record>
+
+        <!-- Template in PDF -->
+        <template id="library_label_report_template">
+            <t t-call="web.basic_layout">
+                <div class="label-container">
+                    <t t-foreach="docs" t-as="doc">
+                        <t t-foreach="doc.library_label_ids" t-as="label">
+                            <div class="label-box">
+                                <h3 class="product-name"><t t-esc="label.product_name.split(': ')[1]"/></h3>
+                                <!-- Bảng chứa từng mã đăng ký -->
+                                <table border="1" style="width: 100%; text-align: center; border-collapse: collapse;">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã Đăng Ký</th>
+                                            <th>Barcode</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="label.dk_cb_list.split(', ')" t-as="dk_cb">
+                                            <tr>
+                                                <td style="padding: 8px; font-size: 14px;"><t t-esc="dk_cb"/></td>
+                                                <td style="padding: 8px;">
+                                                <img t-att-src="'report/barcode/?barcode_type=%s&amp;value=%s&amp;
+                                                    width=%s&amp;height=%s'%('EAN13',dk_cb,265,80)"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+
+    </data>
+</odoo>

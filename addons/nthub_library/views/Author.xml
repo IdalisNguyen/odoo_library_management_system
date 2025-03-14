@@ -1,0 +1,104 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_author_form">
+            <field name="name">view.author.form</field>
+            <field name="model">books.author</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <field name="image" widget="image" class="oe_avatar"/>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="email"/>
+                                <field name="phone_number"/>
+                                <field name="book_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            </group>
+                            <group>
+
+                                <field name="data_of_birth"/>
+                                <field name="age"/>
+                                <field name="salary"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Information">
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids" invisible="1"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_author_tree">
+            <field name="name">Author.tree</field>
+            <field name="model">books.author</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="email"/>
+                    <field name="phone_number"/>
+                    <field name="book_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_books_author_graph">
+            <field name="name">author.graph</field>
+            <field name="model">books.author</field>
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="data_of_birth"/>
+                    <field name="salary" type="row"/>
+                </graph>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_books_author_kanban">
+            <field name="name">author.kanban</field>
+            <field name="model">books.author</field>
+            <field name="arch" type="xml">
+                <kanban default_order="id desc">
+                    <field name="color"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click">
+                                <div class="oe_kanban_details">
+                                    <ul>
+                                        <li>
+                                            Name:
+                                            <field name="name"/>
+                                        </li>
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_books_author_calendar">
+            <field name="name">author.calendar</field>
+            <field name="model">books.author</field>
+            <field name="arch" type="xml">
+                <calendar string="Author Calendar" date_start="start_date" date_stop="end_date">
+                    <field name="name"/>
+                </calendar>
+            </field>
+        </record>
+
+
+        <record model="ir.actions.act_window" id="action1_author">
+            <field name="name">Author</field>
+            <field name="res_model">books.author</field>
+            <field name="view_mode">tree,form,graph,kanban,pivot,calendar</field>
+            <!--         <field name="context">{'default_gender':'female','default_note':'new patient','hide_gender': 1}</field>-->
+        </record>
+
+
+    </data>
+</odoo>

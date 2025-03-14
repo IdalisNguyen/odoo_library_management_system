@@ -1,0 +1,201 @@
+<odoo>
+    <data>
+        <record id="action_server_cron_job" model="ir.actions.server">
+            <field name="name">Check Delayed</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="model_books_borrows"/>
+            <field name="binding_model_id" ref="model_books_borrows"/>
+            <field name="state">code</field>
+            <field name="code">records.update_delayed_status()</field>
+        </record>
+        <record id="action_scan_name" model="ir.actions.server">
+            <field name="name">Scan Name</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="model_books_borrows"/>
+            <field name="binding_model_id" ref="model_books_borrows"/>
+            <field name="state">code</field>
+            <field name="code">action = env['books.borrows'].process_qr_scan()</field>
+            <field name="groups_id" eval="[(4, ref('library_group_manger'))]"/>
+        </record>
+
+
+<record model="ir.ui.view" id="view_borrows_form">
+    <field name="name">view.borrows.form</field>
+    <field name="model">books.borrows</field>
+    <field name="arch" type="xml">
+        <form>
+            <header>
+                <button name="action_report" string="Print Report" type="object" class="oe_highlight" groups="nthub_library.library_group_manger"/>
+                <button name="action_draft" string="Reset to Draft" type="object" class="oe_highlight" groups="nthub_library.library_group_manger"/>
+                <button name="action_ended" string="End Borrow" groups="nthub_library.library_group_manger" class="oe_highlight" type="object"/>
+                <button string="Scan QR name student" class="oe_highlight" type="object" name="action_scan_name_student" args="[{'vals':vals}]" />
+                <button string="Scan BarCode name student" class="oe_highlight" type="object" name="action_barcode_name_student" args="[{'vals':vals}]" />
+
+                <field name="state" widget="statusbar" nolabel="1" statusbar_visible="draft,running,delayed,ended"/>
+            </header>
+            <sheet>
+                <group>
+                    <group string="Thông Tin">
+                        <field name="code" />
+                        <field name="name_library_card"/>
+                        <field name="id_student" />
+                        <field name="borrow_id" default="create_uid"/>
+                    </group>
+                    <group>
+                        <field name="start_borrow"/>
+                        <field name="end_borrow"/>
+                        <field name="borrows_duration"/>
+                        <field name="received_date"/>
+                        <field name="delay_penalties"/>
+                        <field name="delay_duration"/>
+                    </group>
+                    <group>
+                    </group>
+                    <group >
+
+                    </group>
+
+                </group>
+                <group name="book_borrow" string="Sách Mượn">
+                    <group>
+                        <button string="Scan QR Code book" type="object" name="action_scan_qr" args="[{'vals': vals}]"/> 
+                    </group>
+                    <field name="book_copy_list"/>
+
+                </group>
+            </sheet>
+
+
+        </form>
+    </field>
+</record>
+
+        <record model="ir.ui.view" id="view_borrows_tree">
+            <field name="name">borrows.tree</field>
+            <field name="model">books.borrows</field>
+            <field name="arch" type="xml">
+                <tree decoration-success="state=='ended'" decoration-danger="state=='delayed'"
+                      decoration-info="state=='running'" decoration-warning="state=='draft'"
+                      sample="1" multi_edit="1" default_order="start_borrow desc">
+                    <field name="code"/>
+                    <field name="start_borrow"/>
+                    <field name="end_borrow"/>
+                    <field name="state"
+                           decoration-success="state=='ended'"
+                           decoration-info="state=='running'"
+                           decoration-warning="state=='draft'"
+                           decoration-danger="state=='delayed'"
+                           widget="badge"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_borrows_search">
+            <field name="name">borrows.search</field>
+            <field name="model">books.borrows</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" filter_domain="[('name','ilike',self)]"/>
+
+                    <filter name="filter_ended" string="Ended"
+                            domain="[('state','=','ended')]"/>
+
+                    <filter name="filter_running" string="running"
+                            domain="[('state','=','running')]"/>
+
+                    <filter name="filter_draft" string="Draft"
+                            domain="[('state','=','draft')]"/>
+
+                    <filter name="filter_delay" string="Delayed"
+                            domain="[('state','=','delayed')]"/>
+                    <separator/>
+                    <filter name="filter_delay" string="date"
+                            domain="[('start_borrow','&gt;=', (context_today() - relativedelta(years=1)).strftime('%%Y-%%m-%%d'))]"/>
+
+                    <group expand="0" string="Group By">
+                        <filter string="state" name="group_by_state"
+                                context="{'group_by': 'state'}"/>
+                    </group>
+                    <group expand="0" string="Group By">
+                        <filter string="name" name="group_by_name"
+                                context="{'group_by': 'name'}"/>
+                    </group>
+
+                    <group expand="0" string="Group By">
+                        <filter string="Books" name="group_by_book_copy_id"
+                                context="{'group_by': 'book_copy_id'}"/>
+                    </group>
+                    <searchpanel>
+                        <field name="state" icon="fa-users"
+                               select="multi" enable_counters="1"/>
+
+                        <field name="name" icon="fa-users"
+                               select="multi" enable_counters="1"/>
+
+                        <field name="book_copy_id" icon="fa-users"
+                               select="multi" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_books_borrows_calendar">
+            <field name="name">borrows.calendar</field>
+            <field name="model">books.borrows</field>
+            <field name="arch" type="xml">
+                <calendar string="Borrows Calendar" date_start="start_borrow" date_stop="end_borrow">
+                    <field name="name"/>
+                </calendar>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_borrows_pivot">
+            <field name="name">borrows.pivot</field>
+            <field name="model">books.borrows</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="state"/>
+                    <field name="name" type="row"/>
+                    <field name="book_copy_id" type="row"/>
+                </pivot>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_borrows_graph">
+            <field name="name">borrows.graph</field>
+            <field name="model">books.borrows</field>
+            <field name="arch" type="xml">
+                <graph type="bar" sample="1">
+                    <field name="book_copy_id" type="bar"  limit="5"/>
+                </graph>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_books_borrows_kanban">
+            <field name="name">borrows.kanban</field>
+            <field name="model">books.borrows</field>
+            <field name="arch" type="xml">
+                <kanban default_order="id desc">
+                    <field name="color"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click">
+                                <div class="oe_kanban_details">
+                                    <ul>
+                                        <li>
+                                            Name:
+                                            <field name="name_library_card"/>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="action_borrowed">
+            <field name="name">Borrows</field>
+            <field name="res_model">books.borrows</field>
+            <field name="view_mode">tree,form,calendar,pivot,graph,kanban</field>
+
+        </record>
+    </data>
+</odoo>

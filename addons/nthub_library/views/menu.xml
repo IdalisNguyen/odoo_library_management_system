@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<odoo>
+    <menuitem name="Thư Viện" id="main_books_menu" web_icon="nthub_library,static/description/icon.png" groups="nthub_library.library_group_manger">
+        <menuitem id="dash_menu" name="Dashboard" action="open_board_my_dash_action" sequence="1"/>
+        
+        <menuitem name="Quản lý Sách" id="menu_1_purchase" sequence="2">
+            <menuitem name="Mua Đầu Sách" id="menu_2_purchase" action="purchase.purchase_rfq" sequence="1"/>
+            <menuitem name="Đầu Sách" id="menu_3_purchase" action="stock.product_template_action_product" sequence="2"/>
+            <menuitem name="Phiếu Nhập Kho" id="menu_4_purchase" action="stock.action_picking_tree_all" sequence="3"/>
+        </menuitem>
+
+        <menuitem name="Mượn Trả" id="menu_2_borrow" action="action_borrowed" sequence="3"/>
+        <menuitem id="library_configration" action="library_conf" name="Báo Cáo Phản Hồi" sequence="4"/>
+
+        <menuitem name="Thông Tin Sách" id="menu_1_books" sequence="5">
+            <menuitem id="menu_info_book_1" name="Thông tin sách" sequence="1">
+                <menuitem name="Các Loại Sách" id="menu_2_information" action="action_book_data" sequence="1"/>
+                <menuitem name="Bản Sao Sách" id="menu_1_copies" action="action_copies" sequence="2"/>
+            </menuitem>
+
+            <menuitem id="menu_info_book_2" name="Danh Mục Sách" sequence="2">
+                <menuitem name="Danh Mục Chính" id="menu_category_1" action="action_category" sequence="1"/>
+                <menuitem name="Danh Mục Kệ Sách" id="menu_category_2" action="action_book_shelf" sequence="2"/>
+                <menuitem name="Danh Mục Giá Sách" id="menu_category_3" action="action_book_rack" sequence="3"/>
+            </menuitem>
+        </menuitem>
+
+        <menuitem name="Thẻ Bạn Đọc" id="library_card" action="action_card_info" sequence="6"/>
+
+        <menuitem name="Cấu Hình" id="menu_1_setting" sequence="100">
+            <menuitem name="Tác Giả" id="menu_1_author" action="action1_author" sequence="0"/>
+            <menuitem name="Nhà Cung Cấp" id="menu_1_publisher" action="action2_publisher" sequence="1"/>
+            <menuitem name="Bạn Đọc" id="library_borrowers" action="contacts.action_contacts" sequence="40"/>
+            <menuitem name="Kho" id="stock_warhouse" action="stock.action_product_stock_view" sequence="45"/>
+        </menuitem>
+    </menuitem>
+</odoo>

@@ -1,0 +1,67 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_book_publisher_form">
+            <field name="name">view.book.publisher.form</field>
+            <field name="model">book.publisher</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_in_consultation" string="In Consultation"
+                                class="oe_highlight" type="object" invisible="state!='draft'"/>
+
+                        <button name="action_done" string="Mark As Done" type="object"
+                                class="oe_highlight" invisible="state!='in_consultation'"/>
+
+                        <button name="action_draft" string="Reset to Draft"
+                                class="oe_highlight" type="object" invisible="state!='draft'"/>
+
+                        <button name="action_cancel" string="Cancel"
+                                class="oe_highlight" type="object" invisible="state!='draft,in_consultation'"/>
+
+                        <field name="state" widget="statusbar" nolabel="1"
+                               statusbar_visible="draft,in_consulation,done,cancel"/>
+
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="id"/>
+                                <field name="count_books"/>
+                            </group>
+                            <group>
+                                <field name="email"/>
+                                <field name="phone_number"/>
+                                <field name="date_publisher"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_book_publisher_tree">
+            <field name="name">publisher.tree</field>
+            <field name="model">book.publisher</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="id"/>
+                    <field name="email"/>
+                    <field name="date_publisher"/>
+                    <field name="state"
+                           decoration-success="state=='done'"
+                           decoration-info="state=='draft'"
+                           decoration-danger="state=='cancel'"
+                           decoration-warning="state=='in_consulation'"
+                           widget="badge"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action2_publisher">
+            <field name="name">Publisher</field>
+            <field name="res_model">book.publisher</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

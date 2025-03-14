@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ir_cron_update_delayed_status" model="ir.cron">
+            <field name="name">Update Delayed Status</field>
+            <field name="model_id" ref="model_books_borrows"/>
+            <field name="state">code</field>
+            <field name="code">model.update_delayed_status()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="active" eval="True"/>
+            <field name="nextcall"
+                   eval="(DateTime.now().replace(hour=0, minute=0, second=1) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+    </data>
+</odoo>

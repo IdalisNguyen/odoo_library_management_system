@@ -1,0 +1,50 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_books_received_form">
+            <field name="name">view.books.received.form</field>
+            <field name="model">books.received</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="borrow_id"/>
+<!--                                <field name="end_date"/>-->
+
+
+                            </group>
+                            <group>
+                                 <field name="received_date"/>
+                                <field name="delay_duration"/>
+                                <field name="delay_penalties"/>
+
+
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_received_tree">
+            <field name="name">received.tree</field>
+            <field name="model">books.received</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="delay_penalties"/>
+                    <field name="received_date"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_received">
+            <field name="name">Books Received</field>
+            <field name="res_model">books.received</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem name="Books Received" id="menu_1_received" parent="menu_1_borrows"
+                  action="action_received" sequence="30"/>
+
+
+    </data>
+</odoo>

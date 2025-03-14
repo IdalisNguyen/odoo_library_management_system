@@ -1,0 +1,14 @@
+<odoo>
+  <data>
+    <record id="stock_quant_inherit" model="ir.ui.view">
+      <field name="name">stock.quant.inherited</field>
+      <field name="model">stock.quant</field>
+      <field name="inherit_id" ref="stock.view_stock_quant_tree_editable"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='inventory_quantity_auto_apply']" position="after">
+                <field name="borrowed_book_copies" string="Bản Sao Đã Mượn" readonly="1"/>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>

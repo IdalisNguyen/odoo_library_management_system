@@ -1,0 +1,219 @@
+<odoo>
+      <template id="portal_my_borrows_home"  name="Show Borrows" customize_show="True" inherit_id="portal.portal_my_home">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="url">/my/home/borrows_list_details</t>
+                <t t-set="title">Borrows Details</t>
+                <t t-set="placeholder_count" t-value="'borrow_count'"/>
+            </t>
+        </xpath>
+    </template>
+
+<!-- <record id="menu_borrow" model="website.menu">-->
+<!--        <field name="name">Borrows</field>-->
+<!--        <field name="url">/my/home/borrows_list_details</field>-->
+<!--        <field name="parent_id" ref="website.main_menu"/>-->
+<!--        <field name="sequence" type="int">10</field>-->
+<!--    </record>-->
+    <template id="borrows_list_page" name="Borrows details">
+        <t t-call="portal.portal_layout">
+            <div class="oe_structure">
+                <div class="container">
+                    <h2>Borrows Details</h2>
+                    <a t-attf-href="/my/borrows_form?{{ keep_query() }}">
+                        <button type="button" class="btn btn-info btn-md" id="create_resignation">Create Resignation
+                        </button>
+                    </a>
+                    <table class="table-striped table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Book</th>
+                                <th>Start Borrow</th>
+                                <th>Email Borrower</th>
+                                <th>state</th>
+                                <th>End Borrow</th>
+                                <th>Day Price</th>
+                                <th>Delay Duration</th>
+                                <th>Delay Penalties</th>
+                                <th>Borrows Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="my_details" t-as="order">
+                                <tr>
+                                    <td>
+                                        <a t-attf-href="/desired_borrower/#{order.id}">
+                                            <span t-esc="order.name.name"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span t-esc="order.book_id.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="order.start_borrow"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="order.email"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="order.state"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="order.end_borrow"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="order.daily_price"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="order.delay_duration"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="order.delay_penalties"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="order.borrows_duration"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="borrowers_form" name="Borrow Form">
+        <t t-call="website.layout">
+            <div class="oe_structure">
+                <div class="model-body" style="padding:1px 50px;">
+                    <form method="post" class="s_website_form form-horizontal container-fluid mt32"
+                          action="/my/borrower/create">
+                        <center>
+                            <br/>
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <div class="form-group">
+                                <label for="name" class="control-label">Borrower</label>
+                                <select name="name" class="form-control link-style">
+                                    <t t-foreach="borrowers" t-as="borrower">
+                                        <option t-att-value="borrower.id">
+                                            <t t-out="borrower.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="book_id" class="control-label">Book</label>
+                                <select name="book_id" class="form-control link-style">
+                                    <t t-foreach="books" t-as="book">
+                                        <option t-att-value="book.id">
+                                            <t t-out="book.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="date" class="control-label">Borrowing Start Date:</label>
+                                <input type="date" name="start_borrow" id="start_borrow"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="date" class="control-label">Borrowing End Date:</label>
+                                <input type="date" name="end_borrow" id="end_borrow"/>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-info">Submit</button>
+                            </div>
+                        </center>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="create_borrowing_done" name="Done">
+        <t t-call="portal.portal_layout">
+            <div id="wrap">
+                <div class="oe_structure">
+                    <div class="container">
+                        <div class="card">
+                            <div class="card-header">
+                                <div id="wrap">
+                                    <div class="container">
+                                        <h1>Thanks!</h1>
+                                        <div class="row">
+                                            <div class="col-lg-8">
+                                                <div class="alert alert-success" role="status">The Borrowing record
+                                                    has been created successfully.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+    <template id="borrower_detail_form_shown_link" inherit_id="portal.portal_sidebar">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <section style="background-color:#eee;">
+                <div class="container py-5">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Borrower</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="text-muted mb">
+                                                <t t-out="order.name.name"/>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">Start Borrow Date</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="text-muted mb">
+                                                <t t-out="order.start_borrow"/>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">End Borrow Date</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="text-muted mb">
+                                                <t t-out="order.end_borrow"/>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <p class="mb-0">state</p>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <p class="text-muted mb">
+                                                <t t-out="order.state"/>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </xpath>
+    </template>
+</odoo>

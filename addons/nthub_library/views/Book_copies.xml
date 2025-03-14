@@ -1,0 +1,87 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_book_copies_form">
+            <field name="name">view.book.copies.form</field>
+            <field name="model">book.copies</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="book_id"/>
+                                <field name="name"/>
+                                <field name="DK_CB"/>
+                            </group>
+                            <group>
+                                <field name="state"/>
+                                <field name="library_shelf"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+          <record model="ir.ui.view" id="view_books_borrows_graph">
+            <field name="name">copies.graph</field>
+            <field name="model">book.copies</field>
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="state"/>
+                    <field name="book_id" type="row"/>
+                </graph>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_copies_pivot">
+            <field name="name">copies.pivot</field>
+            <field name="model">book.copies</field>
+            <field name="arch" type="xml">
+                <pivot>
+
+                    <field name="book_id"/>
+                </pivot>
+            </field>
+        </record>
+         <record model="ir.ui.view" id="view_copies_calendar">
+            <field name="name">copies.calendar</field>
+            <field name="model">book.copies</field>
+            <field name="arch" type="xml">
+                <calendar string="Books Calendar" date_start="start_date" date_stop="end_date">
+                    <field name="state"/>
+                </calendar>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_book_copies_tree">
+            <field name="name">Copies.tree</field>
+            <field name="model">book.copies</field>
+            <field name="arch" type="xml">
+                <tree decoration-success="state=='available'" decoration-danger="state=='lost'" decoration-warning="state=='borrowed'"
+                          sample="1" multi_edit="1">
+                    <field name="book_id"/>
+                    <!-- <field name="serial_number"/> -->
+                    <field name="DK_CB"/>
+                    
+                     <field name="state"
+                           decoration-success="state=='available'"
+                           decoration-warning="state=='borrowed'"
+                           decoration-danger="state=='lost'"
+                           widget="badge" />
+                    <field name="progress" widget="progressbar"/>
+                </tree>
+
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_copies">
+            <field name="name">Book Copies</field>
+            <field name="res_model">book.copies</field>
+            <field name="view_mode">tree,form,graph,pivot,calendar,kanban</field>
+
+        </record>
+
+
+
+    </data>
+</odoo>

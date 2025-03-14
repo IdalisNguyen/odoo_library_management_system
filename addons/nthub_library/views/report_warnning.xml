@@ -1,0 +1,69 @@
+<odoo>
+    <data>
+
+        <record id="report_borrows_warning_id" model="ir.actions.report">
+            <field name="name">Warnings</field>
+            <field name="model">books.borrows</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">nthub_library.report_borrows_warning</field>
+            <field name="report_file">books.borrows</field>
+
+            <field name="binding_model_id" eval="True"/>
+            <field name="binding_type">report</field>
+        </record>
+        <template id="report_borrows_warning">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center">
+                            <t t-set="message"
+                               t-value="request.env['ir.config_parameter'].sudo().get_param('nthub_library.message')"/>
+                            <div class="alert alert-warning">
+                                <strong>Warning:</strong>
+                                <t t-esc="message"/>
+                            </div>
+                        </div>
+                        <table class="table table-bordered">
+                            <h2 t_field="doc.name"/>
+                            <tr>
+                                <group>
+                                    <group>
+                                        <th>name</th>
+                                        <th>state</th>
+                                        <th>start_borrow</th>
+                                    </group>
+                                    <group>
+                                        <th>end_borrow</th>
+                                        <th>Book Copy</th>
+                                    </group>
+                                </group>
+                            </tr>
+                            <t t-foreach="docs" t-as="o">
+                                <tr>
+                                    <td>
+                                        <span t-raw="o.name.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o.state"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o.start_borrow"/>
+                                    </td>
+                                    <td>
+                                        <span t-raw="o.end_borrow"/>
+                                    </td>
+
+                                    <td>
+                                        <span t-raw="o.book_copy_id.name"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
+
