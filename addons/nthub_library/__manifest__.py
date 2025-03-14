@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': "Library Management System",
-    'version': '15.0',
+    'version': '17.0.0.1',
     'summary': """Library Management System""",
     'description': 
     """

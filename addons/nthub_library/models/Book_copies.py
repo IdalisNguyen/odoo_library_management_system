@@ -121,7 +121,7 @@ class PurchaseOrder(models.Model):
 
                     dk_cb_list = []
                     for i in range(int(line.product_qty)):  # Lặp theo số lượng sách
-                        DK_CB = self.generate_serial_number_by_category(book.category_ids.id,book.copy_ids.library_shelf.rack_id.code,book.copy_ids.library_shelf.id)  # Gọi hàm mới
+                        DK_CB = self.generate_serial_number_by_category(book.category_ids.id, line.product_id.library_shelf.rack_id.code, line.product_id.library_shelf.id)  # Gọi hàm mới
                         book_copy = self.env['book.copies'].create({
                             'book_id': book.id,
                             'DK_CB': DK_CB,
@@ -134,24 +134,17 @@ class PurchaseOrder(models.Model):
         
         return res
 
-    
-    
-    def generate_serial_number_by_category(self,category_id,rack_id_code,shelf_id):
+    def generate_serial_number_by_category(self, category_id, rack_id_code, shelf_id):
         """ Tạo số đăng ký cá biệt với tiền tố 10 + ID danh mục và tự động tăng """
-        
-        
         category_code = f"10{category_id}"
-        rack_id_code = f"{rack_id_code}"
-        shelf_id_code = f"{shelf_id}"
-        
-
+        rack_id_code = f"{rack_id_code or '00'}"  # Sử dụng '00' nếu rack_id_code là False
+        shelf_id_code = f"{shelf_id or '00'}"  # Sử dụng '00' nếu shelf_id là False
         # Lấy các số DK_CB đã tồn tại cho danh mục này
         existing_serials = self.env['book.copies'].search([
             ('book_id.category_ids', '=', category_id),
-            ('library_shelf', '=',shelf_id),
-            ('library_shelf.rack_id.code', '=',rack_id_code)
+            ('library_shelf', '=', shelf_id),
+            ('library_shelf.rack_id.code', '=', rack_id_code)
         ]).mapped('DK_CB')
-        
         if existing_serials:
             # Tìm số lớn nhất trong danh sách
             max_number = max(int(serial[-3:]) 
@@ -160,22 +153,17 @@ class PurchaseOrder(models.Model):
             next_count = str(max_number + 1).zfill(3)  # Tăng lên 1 và giữ 3 số
         else:
             next_count = "001"
-
-
         # Tạo số DK_CB mới
         serial_number = f"{category_code}{rack_id_code}{shelf_id_code}{next_count}"
         return serial_number
     
     def action_print_library_labels(self):
         precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
-
         invoice_vals_list = []
-        
         sequence = 10
         for order in self:
             if order.invoice_status != 'to invoice':
                 continue
-
             order = order.with_company(order.company_id)
             pending_section = None
             invoice_vals = order._prepare_invoice()

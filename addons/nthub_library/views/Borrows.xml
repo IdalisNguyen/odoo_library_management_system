@@ -26,9 +26,8 @@
         <form>
             <header>
                 <button name="action_report" string="Print Report" type="object" class="oe_highlight" groups="nthub_library.library_group_manger"/>
-                <button name="action_draft" string="Reset to Draft" type="object" class="oe_highlight" groups="nthub_library.library_group_manger"/>
-                <button name="action_ended" string="End Borrow" groups="nthub_library.library_group_manger" class="oe_highlight" type="object"/>
-                <button string="Scan QR name student" class="oe_highlight" type="object" name="action_scan_name_student" args="[{'vals':vals}]" />
+                <button name="action_draft" invisible = "state == 'draft' or state == 'running'" string="Reset to Draft" type="object" class="oe_highlight" groups="nthub_library.library_group_manger"/>
+                <button name="action_ended" string="End Borrow" invisible = "state == 'ended' or state == 'draft'" groups="nthub_library.library_group_manger" class="oe_highlight" type="object"/>
                 <button string="Scan BarCode name student" class="oe_highlight" type="object" name="action_barcode_name_student" args="[{'vals':vals}]" />
 
                 <field name="state" widget="statusbar" nolabel="1" statusbar_visible="draft,running,delayed,ended"/>
@@ -58,7 +57,7 @@
                 </group>
                 <group name="book_borrow" string="Sách Mượn">
                     <group>
-                        <button string="Scan QR Code book" type="object" name="action_scan_qr" args="[{'vals': vals}]"/> 
+                        <button string="Scan QR Code book" class="oe_highlight" type="object" name="action_scan_qr_book_copies" args="[{'vals': vals}]"/> 
                     </group>
                     <field name="book_copy_list"/>
 
@@ -95,7 +94,6 @@
             <field name="model">books.borrows</field>
             <field name="arch" type="xml">
                 <search>
-                    <field name="name" filter_domain="[('name','ilike',self)]"/>
 
                     <filter name="filter_ended" string="Ended"
                             domain="[('state','=','ended')]"/>
@@ -116,10 +114,6 @@
                         <filter string="state" name="group_by_state"
                                 context="{'group_by': 'state'}"/>
                     </group>
-                    <group expand="0" string="Group By">
-                        <filter string="name" name="group_by_name"
-                                context="{'group_by': 'name'}"/>
-                    </group>
 
                     <group expand="0" string="Group By">
                         <filter string="Books" name="group_by_book_copy_id"
@@ -129,8 +123,7 @@
                         <field name="state" icon="fa-users"
                                select="multi" enable_counters="1"/>
 
-                        <field name="name" icon="fa-users"
-                               select="multi" enable_counters="1"/>
+
 
                         <field name="book_copy_id" icon="fa-users"
                                select="multi" enable_counters="1"/>
@@ -143,7 +136,7 @@
             <field name="model">books.borrows</field>
             <field name="arch" type="xml">
                 <calendar string="Borrows Calendar" date_start="start_borrow" date_stop="end_borrow">
-                    <field name="name"/>
+                    <field name="code"/>
                 </calendar>
             </field>
         </record>
@@ -153,7 +146,7 @@
             <field name="arch" type="xml">
                 <pivot>
                     <field name="state"/>
-                    <field name="name" type="row"/>
+                    <field name="code" type="row"/>
                     <field name="book_copy_id" type="row"/>
                 </pivot>
             </field>
