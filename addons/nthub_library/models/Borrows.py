@@ -151,30 +151,6 @@ class Borrows(models.Model):
             self.code.book_limit -= num
         else:
             self.state = 'draft'
-    
-    # @api.model
-    # def create(self, vals):
-    #     # Tạo một bản ghi mới
-    #     new_record = super(Borrows, self).create(vals)
-    #     if 'book_copy_list' in vals:
-    #         book_copies = vals['book_copy_list'][0][2]
-    #         book_copies_list = self.env['book.copies'].browse(book_copies).filtered(lambda x: x.state == 'borrowed')
-    #         if book_copies_list:
-    #             raise UserError(f'Trạng thái của sách {book_copies_list.book_id.name} - {book_copies_list.DK_CB} đã được mượn.')            
-        
-    #     # Tạo thông báo
-    #     return new_record
-
-    # @api.model
-    # def write(self, vals):
-    #     # Cập nhật bản ghi
-    #     res = super(Borrows, self).write(vals)
-    #     if 'book_copy_list' in vals:
-    #         book_copies = vals['book_copy_list'][0][2]
-    #         book_copies_list = self.env['book.copies'].browse(book_copies).filtered(lambda x: x.state == 'borrowed')
-    #         if book_copies_list:
-    #             raise UserError(f'Trạng thái của sách {book_copies_list.book_id.name} - {book_copies_list.DK_CB} đã được mượn.')            
-    #     return res
   
     # in báo cáo mượn sách
     def action_report(self):
@@ -240,7 +216,7 @@ class Borrows(models.Model):
             print("Không thể mở camera. Hãy chắc chắn rằng không có ứng dụng khác sử dụng camera.")
             return
         while True:
-            ret, frame = cap.read()
+            vals, frame = cap.read()
             cv2.imshow('Camera', frame)
             decoded_objects = decode(frame)
             for obj in decoded_objects:
@@ -255,7 +231,7 @@ class Borrows(models.Model):
                     student = self.env['library.card'].search([('id_student', '=', barcode_name)],limit = 1)
 
                     if student:
-                        self.code = self.env['library.card'].search([('code', '=', student.id)], limit=1).id
+                        self.code = student.id
                         print(f'Student ID: {self.name_card}')
                     else:
                         raise UserError('Student not found.')
@@ -270,40 +246,39 @@ class Borrows(models.Model):
 
 
     def action_scan_qr_book_copies(self, vals):
+        if not self.code:
+            raise UserError('Xác định thẻ bạn đọc trước khi thêm sách mượn.')
         cap = cv2.VideoCapture(0)
         if not cap.isOpened():
             print("Không thể mở camera. Hãy chắc chắn rằng không có ứng dụng khác sử dụng camera.")
             return
         while True:
-            ret, frame = cap.read()
+            vals, frame = cap.read()
             cv2.imshow('Camera', frame)
             decoded_objects = decode(frame)
             for obj in decoded_objects:
-                qr_data = obj.data.decode('utf-8')
-                match = re.search(r'(.+)', qr_data)
+                barcode_data = obj.data.decode('utf-8')
+                
+                print(f'Mã Barcode đã quét: \n{barcode_data}')
+                match = re.search(r'(\d+)', barcode_data)
                 if match:
-                    qr_code_number = match.group(1).strip() 
-                    print(f'ID QR Code: {qr_code_number}')
-                    # qr_code = qr_code_number()  # Assume this function returns the scanned QR code
+                    barcode_book_copies = int(match.group(1))
+                    print(f'DKCB : {barcode_book_copies}')
 
-                    book = self.env['book.copies'].search([('DK_CB', '=', qr_code_number)])
+                    book_copies = self.env['book.copies'].search([('DK_CB', '=', barcode_book_copies)], limit=1)
 
-                    if book:
-                        self.book_copy_list = book.id
-                        self.borrow_ids = [(4, book.id)]
-                        if book.state == 'borrowed':
-                            raise UserError('This book is already borrowed.')
-                        book.state = 'borrowed'
-                    
+                    if book_copies:
+                        self.book_copy_list = [(4, book_copies.id)]
+                        print(f'Book Copies: {self.book_copy_list}')
                     else:
-                        raise UserError('Book not found.')
-                cap.release()
-                cv2.destroyAllWindows()
-                return
-            # Kiểm tra phím nhấn để thoát (ví dụ: nhấn phím 'q')
+                        print('Book Copy not found.')
+                        continue  # Continue scanning without stopping the system
+
+                    cap.release()
+                    cv2.destroyAllWindows()
+                    return
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-        # Giải phóng camera và đóng cửa sổ hiển thị khi thoát vòng lặp
         cap.release()
         cv2.destroyAllWindows()
 
@@ -314,10 +289,3 @@ class ResPartner(models.Model):
     borrow_ids = fields.One2many('books.borrows', 'name_card', string='Books')
     card_no = fields.One2many('library.card','student_id', string='Library Card')    
     # library_card_code = fields.Char(related='card_no.code', string='Library Card Code')
-
-
-# class Resuser(models.Model):
-#     _inherit = 'res.users'
-
-#     id = fields.Many2one()
-#     # library_card_code = fields.Char(related='card_no.code', string='Library Card Code')

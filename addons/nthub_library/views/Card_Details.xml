@@ -10,7 +10,6 @@
                 <header>
                     <button name="running_state" type="object" string="Confirm" groups="nthub_library.library_group_manger" />
                     <button name="draft_state" type="object" string="Draft State" groups="nthub_library.library_group_manger" />
-                    <button string="Quét Thẻ SV Bằng QR" type="object" name="action_scan_name_student" args="[{'vals':vals}]" />
                     <button string="Quét Thẻ SV Bằng BarCode" type="object" name="action_scan_barcode_name_student" args="[{'vals':vals}]" />
                 <field name="state" widget="statusbar" nolabel="1" statusbar_visible="draft,running,ended"/>
 
@@ -29,7 +28,8 @@
                     </group> 
                     <group col="4" colspan="4">
 
-                        <field name="id_student"/>
+                        <field name="id_student" invisible = "user == 'teacher' or user == False" />
+                        <field name="id_teacher" invisible = "user == 'student' or user == False"/>
                     </group>
                     <separator string="Chi Tiết Thành Viên" />
                     <group col="4" colspan="4">
