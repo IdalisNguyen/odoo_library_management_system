@@ -13,19 +13,10 @@ from dateutil.relativedelta import relativedelta as rd
 
 class LibraryCard(models.Model):
     """Defining Library Card."""
-
     _name = "library.card"
     _description = "Library Card information"
     _rec_name = "code"
-
-    # @api.depends("student_id")
-    # def _compute_name(self):
-    #     """Compute name"""
-    #     for rec in self:
-    #         if rec.student_id:
-    #             user = rec.student_id.name
-    #         user = rec.teacher_id.name
-    #         rec.card_name = user
+    _inherit = 'mail.thread'
 
     @api.depends("start_borrow", "duration")
     def _compute_end_borrow(self):
@@ -178,3 +169,48 @@ class LibraryCard(models.Model):
                     print(f"Report generated: {report_file_path}")
                 else:
                     print(f"No borrowed books found in {filename}.")
+                   
+    @api.model
+    def process_return(self):
+        """Process the return of borrowed books by scanning QR code"""
+        code = self.action_scan_qr_return_borrow()
+        if code:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Tìm kiếm theo ID bạn đọc',
+                'res_model': 'library.card',
+                'view_mode': 'tree,form',
+                'target': 'current',
+                'domain': [('id_student', '=', code)],
+                'context': {'default_id_student': code}
+            }
+        else:
+            return {
+                'type': 'ir.actions.act_window_close'
+            }
+
+    def action_scan_qr_return_borrow(self):
+        """Scan QR code to retrieve student ID"""
+        cap = cv2.VideoCapture(0)
+        if not cap.isOpened():
+            print("Không thể mở camera. Hãy chắc chắn rằng không có ứng dụng khác sử dụng camera.")
+            return False
+        while True:
+            ret, frame = cap.read()
+            cv2.imshow('Camera', frame)
+            decoded_objects = decode(frame)
+            for obj in decoded_objects:
+                barcode_data = obj.data.decode('utf-8')
+                print(f'Mã Barcode đã quét: \n{barcode_data}')
+                match = re.search(r'(\d+)', barcode_data)
+                if match:
+                    barcode_name = match.group(1)
+                    print(f'ID Student Barcode: {barcode_name}')
+                    cap.release()
+                    cv2.destroyAllWindows()
+                    return barcode_name
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        cap.release()
+        cv2.destroyAllWindows()
+        return False

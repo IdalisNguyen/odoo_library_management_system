@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    
+
+    <record id="action_scan_library_card" model="ir.actions.server">
+        <field name="name">Quét thẻ bạn đọc</field>
+        <field name="type">ir.actions.server</field>
+        <field name="model_id" ref="model_library_card"/>
+        <field name="binding_model_id" ref="model_library_card"/>
+        <field name="state">code</field>
+        <field name="code">action = env['library.card'].process_return()</field>
+        <field name="groups_id" eval="[(4, ref('library_group_manger'))]"/>
+    </record>
+
     <!-- Form View Of Library Card Details -->
     <record id="product_card_form_view" model="ir.ui.view">
         <field name="name">library.card.form</field>
@@ -37,23 +47,26 @@
                         <field name="duration" required="1" />
                         <field name="end_borrow" />
                     </group>
-                </sheet>
-                <sheet>
                 <notebook>
                     <page name="Lịch Sử Mượn" >
                             <!-- <field name="borrow_ids"/> -->
                             <field name="borrow_copies" />
                 
                     </page>
-                </notebook>                
+                </notebook>          
+
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
 
             </form>
 
         </field>
     </record>
     <!-- Tree View Of Library Card Details -->
-    <record id="product_card_tree_view" model="ir.ui.view">
+    <record id="library_card_tree_view" model="ir.ui.view">
         <field name="name">library.card.tree</field>
         <field name="model">library.card</field>
         <field name="arch" type="xml">
@@ -73,6 +86,17 @@
             </tree>
         </field>
     </record>
+        <record id="view_quotation_tree_with_onboarding" model="ir.ui.view">
+        <field name="name">library.card.tree.inherit</field>
+        <field name="model">library.card</field>
+        <field name="inherit_id" ref="library_card_tree_view"/>
+        <field name="arch" type="xml">
+           <xpath expr="//tree" position="attributes">
+               <attribute name="js_class">button_in_tree</attribute>
+           </xpath>
+        </field>
+        </record>
+
     <!-- Search View Of Library Card Details -->
     <record id="product_card_search_view" model="ir.ui.view">
         <field name="name">library.card.search</field>

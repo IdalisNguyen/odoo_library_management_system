@@ -9,7 +9,12 @@
             <menuitem name="Phiếu Nhập Kho" id="menu_4_purchase" action="stock.action_picking_tree_all" sequence="3"/>
         </menuitem>
 
-        <menuitem name="Mượn Trả" id="menu_2_borrow" action="action_borrowed" sequence="3"/>
+        
+
+        <menuitem name="Mượn/Trả" id="menu_2_borrow" sequence="3">
+            <menuitem name="Mượn Sách" id="menu_1_borrow"  action="action_borrowed" sequence="1"/>
+            <menuitem name="Trả Sách" id="menu_1_"  action="action_returned" sequence="2"/>
+        </menuitem>
         <menuitem id="library_configration" action="library_conf" name="Báo Cáo Phản Hồi" sequence="4"/>
 
         <menuitem name="Thông Tin Sách" id="menu_1_books" sequence="5">

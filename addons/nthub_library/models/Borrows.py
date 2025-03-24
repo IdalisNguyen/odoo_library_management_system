@@ -23,6 +23,8 @@ The class defines several fields that represent different aspects of a book borr
 class Borrows(models.Model):
     _name = 'books.borrows'
     _description = 'books.borrows'
+    _inherit = 'mail.thread'
+
 
     code = fields.Many2one('library.card', string='Thẻ Bạn Đọc')
     name_library_card = fields.Char(related='code.name_borrower', redonly = True, string = "Tên Bạn Đọc",size=250)
@@ -107,16 +109,6 @@ class Borrows(models.Model):
                     print(f"Id scaned {book_id}")
                     return book_id
                 return False
-
-                    
-                # Sử dụng regex để trích xuất số từ dòng có tên là "QR Code:"
-                # match = re.search(r'QR Code: (\d+)', qr_data)
-                # Giải phóng camera và đóng cửa sổ hiển thị
-                cap.release()
-                cv2.destroyAllWindows()
-
-                # Kết thúc chương trình sau khi quét được mã QR
-                return
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         # Giải phóng camera và đóng cửa sổ hiển thị khi thoát vòng lặp
