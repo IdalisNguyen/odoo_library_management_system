@@ -59,10 +59,70 @@ class LibraryCard(models.Model):
                                       string="Book Issue Count")
     
     # borrow_ids = fields.One2many('books.borrows', 'code')
-    borrow_copies = fields.One2many('books.borrows','code')
+    borrow_copies_ids = fields.One2many('books.borrows','code_id')
+    list_book_copy_borrowed_ids = fields.One2many(
+        'book.copies', 'code_id',
+        string="Danh Sách Sách Đã Mượn",
+        compute="_compute_list_book_copy_borrowed",
+        help="Danh sách các sách đã mượn"
+    )
 
+    @api.depends('borrow_copies_ids')
+    def _compute_list_book_copy_borrowed(self):
+        for rec in self:
+            if rec.borrow_copies_ids:
+                borrowed_books = rec.borrow_copies_ids.book_copy_list_ids.filtered(lambda copy: copy.state == 'borrowed')
+                rec.list_book_copy_borrowed_ids = borrowed_books
+            else:
+                rec.list_book_copy_borrowed_ids = False
+                
+    
+    def action_return_book(self):
+        if not self.code:
+            raise UserError('Xác định thẻ bạn đọc trước khi thêm sách mượn.')
+        cap = cv2.VideoCapture(0)
+        if not cap.isOpened():
+            print("Không thể mở camera. Hãy chắc chắn rằng không có ứng dụng khác sử dụng camera.")
+            return
+        while True:
+            vals, frame = cap.read()
+            cv2.imshow('Camera', frame)
+            decoded_objects = decode(frame)
+            for obj in decoded_objects:
+                barcode_data = obj.data.decode('utf-8')
+                
+                print(f'Mã Barcode đã quét: \n{barcode_data}')
+                match = re.search(r'(\d+)', barcode_data)
+                if match:
+                    barcode_book_copies = int(match.group(1))
+                    print(f'DKCB : {barcode_book_copies}')
 
-    @api.depends('id_student','id_teacher')
+                    book_copies = self.env['book.copies'].search([('DK_CB', '=', barcode_book_copies)], limit=1)
+
+                    if book_copies:
+                        # Find the borrow record associated with this book copy
+                        borrow_record = self.borrow_copies_ids.filtered(lambda b: book_copies in b.book_copy_list_ids)
+                        if borrow_record:
+                            # Remove the book from the borrowed list
+                            borrow_record.book_copy_list_ids = [(3, book_copies.id)]
+                            if not borrow_record.book_copy_list_ids:
+                                borrow_record.state = 'ended'  # Update the borrow record state to 'ended' if no books are left
+                            book_copies.state = 'available'
+                            print(f'Removed Book Copy from Borrowed List: {book_copies.id}')
+                        else:
+                            print('Borrow record not found for this book copy.')
+                            continue  
+                    else:
+                        print('Book Copy not found.')
+                        continue  
+                    cap.release()
+                    cv2.destroyAllWindows()
+                    return
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        cap.release()
+        cv2.destroyAllWindows()                
+                
     def _compute_email(self):
         for rec in self:
             if rec.user == 'student' and rec.id_student:
@@ -152,11 +212,11 @@ class LibraryCard(models.Model):
 
                 # Check for borrowed books
                 for rec in self.search([('id_student', 'in', ids_to_check)]):
-                    if rec.borrow_copies and rec.state == 'running':
+                    if rec.borrow_copies_ids and rec.state == 'running':
                         report_data.append({
                             'id_student': rec.id_student,
                             'name_borrower': rec.name_borrower,
-                            'borrowed_books': len(rec.borrow_copies),
+                            'borrowed_books': len(rec.borrow_copies_ids),
                         })
 
                 # Generate report if there are unreturned books
@@ -180,6 +240,8 @@ class LibraryCard(models.Model):
                 'name': 'Tìm kiếm theo ID bạn đọc',
                 'res_model': 'library.card',
                 'view_mode': 'tree,form',
+                'views': [(self.env.ref('nthub_library.library_card_tree_view').id, 'tree'),
+                          (self.env.ref('nthub_library.library_card_form_view').id, 'form')],
                 'target': 'current',
                 'domain': [('id_student', '=', code)],
                 'context': {'default_id_student': code}
@@ -201,7 +263,7 @@ class LibraryCard(models.Model):
             decoded_objects = decode(frame)
             for obj in decoded_objects:
                 barcode_data = obj.data.decode('utf-8')
-                print(f'Mã Barcode đã quét: \n{barcode_data}')
+                print(f'Mã Barcode đã quét: {barcode_data}')
                 match = re.search(r'(\d+)', barcode_data)
                 if match:
                     barcode_name = match.group(1)

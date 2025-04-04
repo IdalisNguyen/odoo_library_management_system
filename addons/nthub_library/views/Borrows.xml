@@ -35,7 +35,7 @@
             <sheet>
                 <group>
                     <group string="Thông Tin">
-                        <field name="code" />
+                        <field name="code_id" />
                         <field name="name_library_card"/>
                         <field name="id_student" />
                         <field name="borrow_id" default="create_uid"/>
@@ -45,7 +45,7 @@
                         <field name="end_borrow"/>
                         <field name="borrows_duration"/>
                         <field name="received_date"/>
-                        <field name="delay_penalties"/>
+                        <field name="delay_penalties_id"/>
                         <field name="delay_duration"/>
                     </group>
                     <group>
@@ -59,7 +59,7 @@
                     <group>
                         <button string="Scan QR Code book" class="oe_highlight" type="object" name="action_scan_qr_book_copies" args="[{'vals': vals}]"/> 
                     </group>
-                    <field name="book_copy_list"/>
+                    <field name="book_copy_list_ids"/>
 
                 </group>
             </sheet>
@@ -79,7 +79,7 @@
                 <tree decoration-success="state=='ended'" decoration-danger="state=='delayed'"
                       decoration-info="state=='running'" decoration-warning="state=='draft'"
                       sample="1" multi_edit="1" default_order="start_borrow desc">
-                    <field name="code"/>
+                    <field name="code_id"/>
                     <field name="start_borrow"/>
                     <field name="end_borrow"/>
                     <field name="state"
@@ -122,7 +122,7 @@
             <field name="model">books.borrows</field>
             <field name="arch" type="xml">
                 <calendar string="Borrows Calendar" date_start="start_borrow" date_stop="end_borrow">
-                    <field name="code"/>
+                    <field name="code_id"/>
                 </calendar>
             </field>
         </record>
@@ -132,7 +132,7 @@
             <field name="arch" type="xml">
                 <pivot>
                     <field name="state"/>
-                    <field name="code" type="row"/>
+                    <field name="code_id" type="row"/>
                     <field name="book_copy_id" type="row"/>
                 </pivot>
             </field>

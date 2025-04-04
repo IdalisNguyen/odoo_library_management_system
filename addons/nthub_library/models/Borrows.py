@@ -26,10 +26,10 @@ class Borrows(models.Model):
     _inherit = 'mail.thread'
 
 
-    code = fields.Many2one('library.card', string='Thẻ Bạn Đọc')
-    name_library_card = fields.Char(related='code.name_borrower', redonly = True, string = "Tên Bạn Đọc",size=250)
-    name_card = fields.Many2one('res.partner', related='code.student_id', string="Tên Bạn Đọc")
-    id_student = fields.Char(string="Mã Sinh Viên", size=256, related='code.id_student',readonly=True)
+    code_id = fields.Many2one('library.card', string='Thẻ Bạn Đọc')
+    name_library_card = fields.Char(related='code_id.name_borrower', redonly = True, string = "Tên Bạn Đọc",size=250)
+    name_card_id = fields.Many2one('res.partner', related='code_id.student_id', string="Tên Bạn Đọc")
+    id_student = fields.Char(string="Mã Sinh Viên", size=256, related='code_id.id_student',readonly=True)
 
 
     start_borrow = fields.Datetime(string="Ngày Mượn", default=lambda self: fields.Datetime.now())
@@ -45,10 +45,10 @@ class Borrows(models.Model):
     duration = fields.Integer()
     received_date = fields.Datetime()
     delay_duration = fields.Float(string="Delay Duration", readonly=True)
-    delay_penalties = fields.Many2one('delay.penalities', string="Phạt Trì Hoãn")
+    delay_penalties_id = fields.Many2one('delay.penalities', string="Phạt Trì Hoãn")
     borrows_duration = fields.Float(string="Thời Hạn Mượn", default = 6)
     
-    book_copy_list = fields.Many2many('book.copies')
+    book_copy_list_ids = fields.Many2many('book.copies')
     book_copy_id = fields.Many2one('book.copies', string='Book Copy')
     
     partner_id = fields.Many2one('res.partner', string='Partner')
@@ -127,23 +127,18 @@ class Borrows(models.Model):
             self.borrow_id = 'Incomplete_Info'
          
     # kiểm tra trong danh sách mượn có sách thì trạng thái borrow thành running
-    @api.constrains('book_copy_list')
-    def _check_book_copy_list(self):
-        if self.book_copy_list:
-            if len(self.book_copy_list) > self.code.book_limit:
-                raise UserError(f'Số sách mượn vượt quá giới hạn cho phép ({self.code.book_limit}).')
-            for book in self.book_copy_list:
-                if book.state == 'borrowed':
-                    raise UserError(f'Trạng thái của sách {book.book_id.name} - {book.DK_CB} đã được mượn.')
+    @api.constrains('book_copy_list_ids')
+    def _check_book_copy_list_ids(self):
+        if self.book_copy_list_ids:
+            if len(self.book_copy_list_ids) > self.code_id.book_limit:
+                raise UserError(f'Số sách mượn vượt quá giới hạn cho phép ({self.code_id.book_limit}).')
             self.state = 'running'
-            for book in self.book_copy_list:
+            for book in self.book_copy_list_ids:
                 book.state = 'borrowed'
-            num = len(self.book_copy_list)
-            self.code.book_limit            
-            self.code.book_limit -= num
+            num = len(self.book_copy_list_ids)
+            self.code_id.book_limit -= num
         else:
-            self.state = 'draft'
-  
+            self.state = 'ended'
     # in báo cáo mượn sách
     def action_report(self):
         # function to report wornning
@@ -160,10 +155,10 @@ class Borrows(models.Model):
     # chuyển trạng thái về kết thúc
     def action_ended(self):
         for record in self:
-            for book in record.book_copy_list:
+            for book in record.book_copy_list_ids:
                 book.state = 'available'
-            record.code.book_limit += len(self.book_copy_list)
-            record.book_copy_list = [(5, 0, 0)]  # Clear all books from the record
+            record.code_id.book_limit += len(self.book_copy_list_ids)
+            record.book_copy_list_ids = [(5, 0, 0)]  # Clear all books from the record
             record.state = 'ended'
             record.return_date = fields.Date.today()
 
@@ -223,8 +218,8 @@ class Borrows(models.Model):
                     student = self.env['library.card'].search([('id_student', '=', barcode_name)],limit = 1)
 
                     if student:
-                        self.code = student.id
-                        print(f'Student ID: {self.name_card}')
+                        self.code_id = student.id
+                        print(f'Student ID: {self.name_card_id}')
                     else:
                         raise UserError('Student not found.')
                     cap.release()
@@ -238,7 +233,7 @@ class Borrows(models.Model):
 
 
     def action_scan_qr_book_copies(self, vals):
-        if not self.code:
+        if not self.code_id:
             raise UserError('Xác định thẻ bạn đọc trước khi thêm sách mượn.')
         cap = cv2.VideoCapture(0)
         if not cap.isOpened():
@@ -260,8 +255,13 @@ class Borrows(models.Model):
                     book_copies = self.env['book.copies'].search([('DK_CB', '=', barcode_book_copies)], limit=1)
 
                     if book_copies:
-                        self.book_copy_list = [(4, book_copies.id)]
-                        print(f'Book Copies: {self.book_copy_list}')
+                        if book_copies in self.book_copy_list_ids:
+                            raise UserError(f'Sách {book_copies.book_id.name} - {book_copies.DK_CB} đã có trong danh sách mượn.')
+                        
+                        if book_copies.state == 'borrowed':
+                            raise UserError(f'Trạng thái của sách {book_copies.book_id.name} - {book_copies.DK_CB} đã được mượn.')
+                        
+                        self.book_copy_list_ids = [(4, book_copies.id)]
                     else:
                         print('Book Copy not found.')
                         continue  # Continue scanning without stopping the system
@@ -278,6 +278,6 @@ class Borrows(models.Model):
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-    borrow_ids = fields.One2many('books.borrows', 'name_card', string='Books')
+    borrow_ids = fields.One2many('books.borrows', 'name_card_id', string='Books')
     card_no = fields.One2many('library.card','student_id', string='Library Card')    
     # library_card_code = fields.Char(related='card_no.code', string='Library Card Code')

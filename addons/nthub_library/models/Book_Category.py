@@ -21,11 +21,11 @@ class LibraryBookShelf(models.Model):
 
     name = fields.Char(string="Tên kệ sách")
 
-    default_quantity = fields.Integer(string="Số lượng mặc định", default=0)
+    default_quantity = fields.Integer(string="Số lượng mặc định", default=10)
     quantity = fields.Integer(string="Số lượng Sách đã nhập", store=True, readonly=True, compute="_compute_quantity_book_in_shelf")
-    book_copies_ids = fields.One2many('book.copies','library_shelf',string = "Sach luu tru ")
+    book_copies_ids = fields.One2many('book.copies','library_shelf_id',string = "Sach luu tru ")
 
-    rack_id = fields.Many2one('library.rack', string="Giá sách", help="Giá sách chứa kệ này", readonly = 1)
+    rack_id = fields.Many2one('library.rack', string="Giá sách", help="Giá sách chứa kệ này", readonly = True)
 
     @api.model
     def _search(self, args, offset=0, limit=None, order=None, access_rights_uid=None):
@@ -56,8 +56,8 @@ class LibraryRack(models.Model):
 
     quantity = fields.Integer(String ="Số lượng")
 
-    name = fields.Char("Name", required=True, help="Rack Name")
-    name_category = fields.Many2one('books.category',string="ten doanh muc")
+    name = fields.Char("Name", help="Rack Name")
+    name_category_id = fields.Many2one('books.category',string="ten doanh muc")
     code = fields.Char("Code", help="Enter code here")
     active = fields.Boolean("Active", default="True",
         help="To active/deactive record")

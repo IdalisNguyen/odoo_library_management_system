@@ -12,15 +12,16 @@
     </record>
 
     <!-- Form View Of Library Card Details -->
-    <record id="product_card_form_view" model="ir.ui.view">
+    <record id="library_card_form_view" model="ir.ui.view">
         <field name="name">library.card.form</field>
         <field name="model">library.card</field>
         <field name="arch" type="xml">
             <form string="Card Details">
                 <header>
-                    <button name="running_state" type="object" string="Confirm" groups="nthub_library.library_group_manger" />
-                    <button name="draft_state" type="object" string="Draft State" groups="nthub_library.library_group_manger" />
-                    <button string="Quét Thẻ SV Bằng BarCode" type="object" name="action_scan_barcode_name_student" args="[{'vals':vals}]" />
+                    <button name="running_state" type="object" string="Xác Nhận" groups="nthub_library.library_group_manger" invisible="state =='running'"/>
+                    <button name="draft_state" type="object" string="Chuyển Trạng Thái Nháp" groups="nthub_library.library_group_manger" invisible="state =='draft'"/>
+                    <button string="Quét Thẻ SV Bằng BarCode" type="object" name="action_scan_barcode_name_student" args="[{'vals':vals}]" invisible="state =='running'"/>
+                    <button  class="oe_highlight" type="object" string="Trả sách" name="action_return_book" invisible="state =='draft' or state =='ended'"/>
                 <field name="state" widget="statusbar" nolabel="1" statusbar_visible="draft,running,ended"/>
 
                 </header>
@@ -48,9 +49,13 @@
                         <field name="end_borrow" />
                     </group>
                 <notebook>
-                    <page name="Lịch Sử Mượn" >
-                            <!-- <field name="borrow_ids"/> -->
-                            <field name="borrow_copies" />
+                    <page name="Sách Đã Mượn">
+                        <!-- <field name="book_copies_ids"/> -->
+                        <field name="list_book_copy_borrowed_ids"/>
+                    </page>
+                    <page name="Phiếu Mượn Sách" >
+                        <!-- <field name="borrow_ids"/> -->
+                        <field name="borrow_copies_ids" />
                 
                     </page>
                 </notebook>          

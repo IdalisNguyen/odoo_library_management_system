@@ -26,7 +26,7 @@ class ProductTemplate(models.Model):
 
     rack = fields.Many2one('library.rack' , required=True)
 
-    library_shelf = fields.Many2one(
+    library_shelf_id = fields.Many2one(
         'library.shelf', 
         required=True,
         string="Kệ Sách", 
