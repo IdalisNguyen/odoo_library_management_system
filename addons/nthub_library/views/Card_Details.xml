@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    
+
+    <record id="action_scan_library_card" model="ir.actions.server">
+        <field name="name">Quét thẻ bạn đọc</field>
+        <field name="type">ir.actions.server</field>
+        <field name="model_id" ref="model_library_card"/>
+        <field name="binding_model_id" ref="model_library_card"/>
+        <field name="state">code</field>
+        <field name="code">action = env['library.card'].process_return()</field>
+        <field name="groups_id" eval="[(4, ref('library_group_manger'))]"/>
+    </record>
+
     <!-- Form View Of Library Card Details -->
-    <record id="product_card_form_view" model="ir.ui.view">
+    <record id="library_card_form_view" model="ir.ui.view">
         <field name="name">library.card.form</field>
         <field name="model">library.card</field>
         <field name="arch" type="xml">
             <form string="Card Details">
                 <header>
-                    <button name="running_state" type="object" string="Confirm" groups="nthub_library.library_group_manger" />
-                    <button name="draft_state" type="object" string="Draft State" groups="nthub_library.library_group_manger" />
-                    <button string="Quét Thẻ SV Bằng QR" type="object" name="action_scan_name_student" args="[{'vals':vals}]" />
-                    <button string="Quét Thẻ SV Bằng BarCode" type="object" name="action_scan_barcode_name_student" args="[{'vals':vals}]" />
+                    <button name="running_state" type="object" string="Xác Nhận" groups="nthub_library.library_group_manger" invisible="state =='running'"/>
+                    <button name="draft_state" type="object" string="Chuyển Trạng Thái Nháp" groups="nthub_library.library_group_manger" invisible="state =='draft'"/>
+                    <button string="Quét Thẻ SV Bằng BarCode" type="object" name="action_scan_barcode_name_student" args="[{'vals':vals}]" invisible="state =='running'"/>
+                    <button  class="oe_highlight" type="object" string="Trả sách" name="action_return_book" invisible="state =='draft' or state =='ended'"/>
                 <field name="state" widget="statusbar" nolabel="1" statusbar_visible="draft,running,ended"/>
 
                 </header>
@@ -29,7 +39,8 @@
                     </group> 
                     <group col="4" colspan="4">
 
-                        <field name="id_student"/>
+                        <field name="id_student" invisible = "user == 'teacher' or user == False" />
+                        <field name="id_teacher" invisible = "user == 'student' or user == False"/>
                     </group>
                     <separator string="Chi Tiết Thành Viên" />
                     <group col="4" colspan="4">
@@ -37,23 +48,30 @@
                         <field name="duration" required="1" />
                         <field name="end_borrow" />
                     </group>
-                </sheet>
-                <sheet>
                 <notebook>
-                    <page name="Lịch Sử Mượn" >
-                            <!-- <field name="borrow_ids"/> -->
-                            <field name="borrow_copies" />
+                    <page name="Sách Đã Mượn">
+                        <!-- <field name="book_copies_ids"/> -->
+                        <field name="list_book_copy_borrowed_ids"/>
+                    </page>
+                    <page name="Phiếu Mượn Sách" >
+                        <!-- <field name="borrow_ids"/> -->
+                        <field name="borrow_copies_ids" />
                 
                     </page>
-                </notebook>                
+                </notebook>          
+
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
 
             </form>
 
         </field>
     </record>
     <!-- Tree View Of Library Card Details -->
-    <record id="product_card_tree_view" model="ir.ui.view">
+    <record id="library_card_tree_view" model="ir.ui.view">
         <field name="name">library.card.tree</field>
         <field name="model">library.card</field>
         <field name="arch" type="xml">
@@ -73,6 +91,17 @@
             </tree>
         </field>
     </record>
+        <record id="view_quotation_tree_with_onboarding" model="ir.ui.view">
+        <field name="name">library.card.tree.inherit</field>
+        <field name="model">library.card</field>
+        <field name="inherit_id" ref="library_card_tree_view"/>
+        <field name="arch" type="xml">
+           <xpath expr="//tree" position="attributes">
+               <attribute name="js_class">button_in_tree</attribute>
+           </xpath>
+        </field>
+        </record>
+
     <!-- Search View Of Library Card Details -->
     <record id="product_card_search_view" model="ir.ui.view">
         <field name="name">library.card.search</field>

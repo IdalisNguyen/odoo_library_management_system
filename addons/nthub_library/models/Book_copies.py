@@ -26,7 +26,7 @@ class bookcopies(models.Model):
     name = fields.Char()
     book_id = fields.Many2one('books.data', string='Sách')
     # count = fields.Integer(related="book_id.copy_count")
-    code = fields.Many2one('library.card', string='Thẻ Bạn Đọc')
+    code_id = fields.Many2one('library.card', string='Thẻ Bạn Đọc')
 
     serial_number = fields.Char(string='Serial Number', unique=True)  # Số đăng ký cá biệt
     DK_CB = fields.Char(String="Số Đăng Ký Cá Biệt")
@@ -43,8 +43,8 @@ class bookcopies(models.Model):
     borrow_id = fields.Many2one('books.borrows')
     product_id = fields.Many2one('product.product', string='Sản phẩm', related='book_id.product_id', store=True)
 
-    library_shelf = fields.Many2one('library.shelf')
-
+    library_shelf_id = fields.Many2one('library.shelf', string="Kệ Sách")
+    library_rack_id = fields.Many2one('library.rack', related='library_shelf_id.rack_id', store=True, string="Giá Sách")
 
     @api.depends('start_date', 'duration')
     def _get_end_date(self):
@@ -121,11 +121,11 @@ class PurchaseOrder(models.Model):
 
                     dk_cb_list = []
                     for i in range(int(line.product_qty)):  # Lặp theo số lượng sách
-                        DK_CB = self.generate_serial_number_by_category(book.category_ids.id,book.copy_ids.library_shelf.rack_id.code,book.copy_ids.library_shelf.id)  # Gọi hàm mới
+                        DK_CB = self.generate_serial_number_by_category(book.category_ids.id, line.product_id.library_shelf_id.rack_id.code, line.product_id.library_shelf_id.id)  # Gọi hàm mới
                         book_copy = self.env['book.copies'].create({
                             'book_id': book.id,
                             'DK_CB': DK_CB,
-                            'library_shelf': line.product_id.library_shelf.id,
+                            'library_shelf_id': line.product_id.library_shelf_id.id,
                         })
                         dk_cb_list.append(book_copy.id)  
                     
@@ -134,24 +134,17 @@ class PurchaseOrder(models.Model):
         
         return res
 
-    
-    
-    def generate_serial_number_by_category(self,category_id,rack_id_code,shelf_id):
+    def generate_serial_number_by_category(self, category_id, rack_id_code, shelf_id):
         """ Tạo số đăng ký cá biệt với tiền tố 10 + ID danh mục và tự động tăng """
-        
-        
         category_code = f"10{category_id}"
-        rack_id_code = f"{rack_id_code}"
-        shelf_id_code = f"{shelf_id}"
-        
-
+        rack_id_code = f"{rack_id_code or '00'}"  # Sử dụng '00' nếu rack_id_code là False
+        shelf_id_code = f"{shelf_id or '00'}"  # Sử dụng '00' nếu shelf_id là False
         # Lấy các số DK_CB đã tồn tại cho danh mục này
         existing_serials = self.env['book.copies'].search([
             ('book_id.category_ids', '=', category_id),
-            ('library_shelf', '=',shelf_id),
-            ('library_shelf.rack_id.code', '=',rack_id_code)
+            ('library_shelf_id', '=', shelf_id),
+            ('library_shelf_id.rack_id.code', '=', rack_id_code)
         ]).mapped('DK_CB')
-        
         if existing_serials:
             # Tìm số lớn nhất trong danh sách
             max_number = max(int(serial[-3:]) 
@@ -160,22 +153,17 @@ class PurchaseOrder(models.Model):
             next_count = str(max_number + 1).zfill(3)  # Tăng lên 1 và giữ 3 số
         else:
             next_count = "001"
-
-
         # Tạo số DK_CB mới
         serial_number = f"{category_code}{rack_id_code}{shelf_id_code}{next_count}"
         return serial_number
     
     def action_print_library_labels(self):
         precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
-
         invoice_vals_list = []
-        
         sequence = 10
         for order in self:
             if order.invoice_status != 'to invoice':
                 continue
-
             order = order.with_company(order.company_id)
             pending_section = None
             invoice_vals = order._prepare_invoice()
@@ -240,6 +228,25 @@ class ProductProduct(models.Model):
     _inherit = 'product.product'
 
     book_copies_ids = fields.One2many('book.copies', 'product_id', string="Book Copies")
+    
+    library_shelf_id = fields.Many2one('library.shelf',related='book_copies_ids.library_shelf_id', string="Kệ Sách")
+    library_rack_id = fields.Many2one('library.rack', related='library_shelf_id.rack_id', store=True, string="Giá Sách")
+   
+    
+    qty_borrowed_book_copies = fields.Integer(
+        compute="_compute_qty_borrowed_books",
+        store=True
+    )
+    @api.depends('book_copies_ids.state')
+    def _compute_qty_borrowed_books(self):
+        for quant in self:
+            borrowed_copies = self.env['book.copies'].search_count([
+                ('product_id', '=', quant.id),
+                ('state', '=', 'borrowed')
+            ])
+            # print(f"Product: {quant.product_id.name}, Borrowed Copies: {borrowed_copies}")
+            quant.qty_borrowed_book_copies = borrowed_copies
+    
     
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'

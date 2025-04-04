@@ -100,7 +100,7 @@
                 <form string="Authors">
                     <sheet>
                         <group>
-                            <field name="name_category"/>
+                            <field name="name_category_id"/>
                             <field name="name" />
                             <field name="code" />
                             <field name="active" widget="boolean_toggle"/>
@@ -116,7 +116,7 @@
             <field name="model">library.rack</field>
             <field name="arch" type="xml">
                 <tree string="Authors">
-                    <field name="name_category"/>
+                    <field name="name_category_id"/>
                     <field name="name" />
                     <field name="code" />
                     <field name="active" />
@@ -130,7 +130,7 @@
             <field name="model">library.rack</field>
             <field name="arch" type="xml">
                 <search string="Authors">
-                    <field name="name_category"/>
+                    <field name="name_category_id"/>
                     <field name="name" />
                     <field name="code" />
                     <field name="active" />

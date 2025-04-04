@@ -10,5 +10,27 @@
         </xpath>
       </field>
     </record>
+
+    <!--Kế thừa và điều chỉnh kho-->
+    <record id="product_product_inherit" model="ir.ui.view">
+      <field name="name">product.product.inherited</field>
+      <field name="model">product.product</field>
+      <field name="inherit_id" ref="stock.product_product_stock_tree"/>
+      <field name="arch" type="xml">
+        <xpath expr="//tree[@js_class='stock_report_list_view']" position="replace">
+            <tree>
+                <field name="display_name" string="Product"/>
+                <field name="qty_available" string="Số Lượng Hiện Tại" sum="Total On Hand" readonly="1"/>
+                <field name="qty_borrowed_book_copies" string="Bản Sao Đã Mượn" sum="Total Borrowed" readonly="1"/>
+                <field name="library_shelf_id" readonly="1"/>
+                <field name="library_rack_id" readonly="1"/>
+
+            </tree>
+        </xpath>
+      </field>
+    </record>
+
+
+
   </data>
 </odoo>

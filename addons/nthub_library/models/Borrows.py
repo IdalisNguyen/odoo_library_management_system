@@ -23,12 +23,13 @@ The class defines several fields that represent different aspects of a book borr
 class Borrows(models.Model):
     _name = 'books.borrows'
     _description = 'books.borrows'
+    _inherit = 'mail.thread'
 
-    name = fields.Many2one('res.partner', string="Name")
-    code = fields.Many2one('library.card', string='Thẻ Bạn Đọc')
-    name_library_card = fields.Char(related='code.name_borrower', redonly = True, string = "Tên Bạn Đọc",size=250)
-    name_card = fields.Many2one('res.partner', related='code.student_id', string="Tên Bạn Đọc")
-    id_student = fields.Char(string="Mã Sinh Viên", size=256, related='code.id_student',readonly=True)
+
+    code_id = fields.Many2one('library.card', string='Thẻ Bạn Đọc')
+    name_library_card = fields.Char(related='code_id.name_borrower', redonly = True, string = "Tên Bạn Đọc",size=250)
+    name_card_id = fields.Many2one('res.partner', related='code_id.student_id', string="Tên Bạn Đọc")
+    id_student = fields.Char(string="Mã Sinh Viên", size=256, related='code_id.id_student',readonly=True)
 
 
     start_borrow = fields.Datetime(string="Ngày Mượn", default=lambda self: fields.Datetime.now())
@@ -44,10 +45,10 @@ class Borrows(models.Model):
     duration = fields.Integer()
     received_date = fields.Datetime()
     delay_duration = fields.Float(string="Delay Duration", readonly=True)
-    delay_penalties = fields.Many2one('delay.penalities', string="Phạt Trì Hoãn")
+    delay_penalties_id = fields.Many2one('delay.penalities', string="Phạt Trì Hoãn")
     borrows_duration = fields.Float(string="Thời Hạn Mượn", default = 6)
     
-    book_copy_list = fields.Many2many('book.copies')
+    book_copy_list_ids = fields.Many2many('book.copies')
     book_copy_id = fields.Many2one('book.copies', string='Book Copy')
     
     partner_id = fields.Many2one('res.partner', string='Partner')
@@ -108,16 +109,6 @@ class Borrows(models.Model):
                     print(f"Id scaned {book_id}")
                     return book_id
                 return False
-
-                    
-                # Sử dụng regex để trích xuất số từ dòng có tên là "QR Code:"
-                # match = re.search(r'QR Code: (\d+)', qr_data)
-                # Giải phóng camera và đóng cửa sổ hiển thị
-                cap.release()
-                cv2.destroyAllWindows()
-
-                # Kết thúc chương trình sau khi quét được mã QR
-                return
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         # Giải phóng camera và đóng cửa sổ hiển thị khi thoát vòng lặp
@@ -136,21 +127,18 @@ class Borrows(models.Model):
             self.borrow_id = 'Incomplete_Info'
          
     # kiểm tra trong danh sách mượn có sách thì trạng thái borrow thành running
-    @api.onchange('book_copy_list')
-    def _onchange_book_copy_list(self):
-        if self.book_copy_list:
-            for book in self.book_copy_list:
-                if book.state == 'borrowed':
-                    raise UserError(f'Trạng thái của sách {book.book_id.name} - {book.DK_CB} đã được mượn.')
+    @api.constrains('book_copy_list_ids')
+    def _check_book_copy_list_ids(self):
+        if self.book_copy_list_ids:
+            if len(self.book_copy_list_ids) > self.code_id.book_limit:
+                raise UserError(f'Số sách mượn vượt quá giới hạn cho phép ({self.code_id.book_limit}).')
             self.state = 'running'
-            for book in self.book_copy_list:
+            for book in self.book_copy_list_ids:
                 book.state = 'borrowed'
+            num = len(self.book_copy_list_ids)
+            self.code_id.book_limit -= num
         else:
-            self.state = 'draft'
-            
-    
-
-  
+            self.state = 'ended'
     # in báo cáo mượn sách
     def action_report(self):
         # function to report wornning
@@ -166,13 +154,13 @@ class Borrows(models.Model):
             
     # chuyển trạng thái về kết thúc
     def action_ended(self):
-        self.state = 'ended'
         for record in self:
-            for book in record.book_copy_list:
+            for book in record.book_copy_list_ids:
                 book.state = 'available'
-            record.state = 'ended'  
+            record.code_id.book_limit += len(self.book_copy_list_ids)
+            record.book_copy_list_ids = [(5, 0, 0)]  # Clear all books from the record
+            record.state = 'ended'
             record.return_date = fields.Date.today()
-            
 
     # chuyển trạng thái về nháp
     def action_draft(self):
@@ -208,85 +196,15 @@ class Borrows(models.Model):
             if rec:
                 rec.state = 'delayed'
 
-    """ Scan name student """
-    def action_scan_name_student(self, vals):
-        # Mở camera
-        cap = cv2.VideoCapture(0)
-
-        # Kiểm tra xem camera có được mở không
-        if not cap.isOpened():
-            print("Không thể mở camera. Hãy chắc chắn rằng không có ứng dụng khác sử dụng camera.")
-            return
-        # Lặp để hiển thị hình ảnh từ camera
-        while True:
-            # Đọc frame từ camera
-            ret, frame = cap.read()
-
-            # Hiển thị frame
-            cv2.imshow('Camera', frame)
-
-            # Quét mã QR
-            decoded_objects = decode(frame)
-            for obj in decoded_objects:
-                qr_data = obj.data.decode('utf-8')
-                
-                print(f'Mã QR đã quét: \n{qr_data}')
-                # match = re.search(r'Id Student: (\d+)', qr_data)
-                # if match:
-                #     qr_code_name = int(match.group(1))
-                match = re.search(r'Student Card: (.+)', qr_data)
-                if match:
-                    qr_code_content = match.group(1).strip()                
-                    print(f'Library Card of Student: {qr_code_content}')
-
-                    # qr_code = qr_code_number()  # Assume this function returns the scanned QR code
-
-                    # Find the book with the scanned QR code
-                    name_borrower = self.env['library.card'].search([('code', '=', qr_code_content)])
-
-                    # If book is found, fill the qbook_id field
-                    if name_borrower:
-                        self.code = name_borrower.id
-                        print()
-                    else:
-                        # Handle case when book is not found
-                        pass
-                # Sử dụng regex để trích xuất số từ dòng có tên là "QR Code:"
-                # match = re.search(r'QR Code: (\d+)', qr_data)
-                # Giải phóng camera và đóng cửa sổ hiển thị
-                cap.release()
-                cv2.destroyAllWindows()
-
-                # Kết thúc chương trình sau khi quét được mã QR
-                return
-
-            # Kiểm tra phím nhấn để thoát (ví dụ: nhấn phím 'q')
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
-        # Giải phóng camera và đóng cửa sổ hiển thị khi thoát vòng lặp
-        cap.release()
-        cv2.destroyAllWindows()
-
     """ Scan barcode student """
     def action_barcode_name_student(self, vals):
-        # Mở camera
         cap = cv2.VideoCapture(0)
-
-        # Kiểm tra xem camera có được mở không
         if not cap.isOpened():
             print("Không thể mở camera. Hãy chắc chắn rằng không có ứng dụng khác sử dụng camera.")
             return
-
-        # Lặp để hiển thị hình ảnh từ camera
         while True:
-            # Đọc frame từ camera
-            ret, frame = cap.read()
-
-            # Hiển thị frame
+            vals, frame = cap.read()
             cv2.imshow('Camera', frame)
-
-            # Quét mã Barcode
             decoded_objects = decode(frame)
             for obj in decoded_objects:
                 barcode_data = obj.data.decode('utf-8')
@@ -297,94 +215,62 @@ class Borrows(models.Model):
                     barcode_name = int(match.group(1))
                     print(f'ID Student Barcode: {barcode_name}')
 
-                    # Find the student with the scanned Barcode
-                    student = self.env['res.partner'].search([('id_student', '=', barcode_name)],limit = 1)
+                    student = self.env['library.card'].search([('id_student', '=', barcode_name)],limit = 1)
 
-                    # If student is found, fill the student_id field
                     if student:
-                        self.name = student.id
-                        self.code = self.env['library.card'].search([('student_id', '=', student.id)], limit=1).id
-                        print(f'Student ID: {self.name_card}')
+                        self.code_id = student.id
+                        print(f'Student ID: {self.name_card_id}')
                     else:
-                        # Handle case when student is not found
-                        print('Student not found.')
-                        pass
-
-                    # Giải phóng camera và đóng cửa sổ hiển thị
+                        raise UserError('Student not found.')
                     cap.release()
                     cv2.destroyAllWindows()
-
-                    # Kết thúc chương trình sau khi quét được mã Barcode
                     return
-
-            # Kiểm tra phím nhấn để thoát (ví dụ: nhấn phím 'q')
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-
-        # Giải phóng camera và đóng cửa sổ hiển thị khi thoát vòng lặp
         cap.release()
         cv2.destroyAllWindows()
 
 
 
-    def action_scan_qr(self, vals):
-        # Mở camera
+    def action_scan_qr_book_copies(self, vals):
+        if not self.code_id:
+            raise UserError('Xác định thẻ bạn đọc trước khi thêm sách mượn.')
         cap = cv2.VideoCapture(0)
-
-        # Kiểm tra xem camera có được mở không
         if not cap.isOpened():
             print("Không thể mở camera. Hãy chắc chắn rằng không có ứng dụng khác sử dụng camera.")
             return
-        # Lặp để hiển thị hình ảnh từ camera
         while True:
-            # Đọc frame từ camera
-            ret, frame = cap.read()
-
-            # Hiển thị frame
+            vals, frame = cap.read()
             cv2.imshow('Camera', frame)
-
-            # Quét mã QR
             decoded_objects = decode(frame)
             for obj in decoded_objects:
-                qr_data = obj.data.decode('utf-8')
+                barcode_data = obj.data.decode('utf-8')
                 
-                match = re.search(r'(.+)', qr_data)
+                print(f'Mã Barcode đã quét: \n{barcode_data}')
+                match = re.search(r'(\d+)', barcode_data)
                 if match:
-                    qr_code_number = match.group(1).strip() 
+                    barcode_book_copies = int(match.group(1))
+                    print(f'DKCB : {barcode_book_copies}')
 
+                    book_copies = self.env['book.copies'].search([('DK_CB', '=', barcode_book_copies)], limit=1)
 
-                    print(f'ID QR Code: {qr_code_number}')
-
-                    # qr_code = qr_code_number()  # Assume this function returns the scanned QR code
-
-                    # Find the book with the scanned QR code
-                    book = self.env['books.data'].search([('dkcd', '=', qr_code_number)])
-
-                    # If book is found, fill the qbook_id field
-                    if book:
-                        self.book_id = book.id
-                        self.borrow_ids = [(4, book.id)]
-                        if book.state == 'borrowed':
-                            raise UserError('This book is already borrowed.')
-                        book.state = 'available'
-                    
+                    if book_copies:
+                        if book_copies in self.book_copy_list_ids:
+                            raise UserError(f'Sách {book_copies.book_id.name} - {book_copies.DK_CB} đã có trong danh sách mượn.')
+                        
+                        if book_copies.state == 'borrowed':
+                            raise UserError(f'Trạng thái của sách {book_copies.book_id.name} - {book_copies.DK_CB} đã được mượn.')
+                        
+                        self.book_copy_list_ids = [(4, book_copies.id)]
                     else:
-                        # Handle case when book is not found
-                        pass
-                # Sử dụng regex để trích xuất số từ dòng có tên là "QR Code:"
-                # match = re.search(r'QR Code: (\d+)', qr_data)
-                # Giải phóng camera và đóng cửa sổ hiển thị
-                cap.release()
-                cv2.destroyAllWindows()
+                        print('Book Copy not found.')
+                        continue  # Continue scanning without stopping the system
 
-                # Kết thúc chương trình sau khi quét được mã QR
-                return
-
-            # Kiểm tra phím nhấn để thoát (ví dụ: nhấn phím 'q')
+                    cap.release()
+                    cv2.destroyAllWindows()
+                    return
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-
-        # Giải phóng camera và đóng cửa sổ hiển thị khi thoát vòng lặp
         cap.release()
         cv2.destroyAllWindows()
 
@@ -392,13 +278,6 @@ class Borrows(models.Model):
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-    borrow_ids = fields.One2many('books.borrows', 'name_card', string='Books')
+    borrow_ids = fields.One2many('books.borrows', 'name_card_id', string='Books')
     card_no = fields.One2many('library.card','student_id', string='Library Card')    
     # library_card_code = fields.Char(related='card_no.code', string='Library Card Code')
-
-
-# class Resuser(models.Model):
-#     _inherit = 'res.users'
-
-#     id = fields.Many2one()
-#     # library_card_code = fields.Char(related='card_no.code', string='Library Card Code')

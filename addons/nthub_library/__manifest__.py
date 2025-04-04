@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': "Library Management System",
-    'version': '15.0',
+    'version': '17.0.0.1',
     'summary': """Library Management System""",
     'description': 
     """
@@ -13,7 +13,7 @@
     'price': 0.0,
     'currency': 'D',
     'website': "",
-    'depends': ['base', 'website', 'board', 'mail','contacts','purchase','stock'],
+    'depends': ['base', 'website', 'board', 'mail','contacts','purchase','stock','mail'],
 
     'data': [
         'security/security.xml',
@@ -40,6 +40,14 @@
         'report/library_labels_report.xml',
         'views/product_template.xml'
     ],
+    'assets': {
+        'web.assets_backend': [
+            'nthub_library/static/src/js/button_return.js',
+            'nthub_library/static/src/xml/button_return.xml'
+        ],
+    },
+
+
     'demo': [
         'demo/demo.xml',
     ],
