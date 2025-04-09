@@ -7,6 +7,7 @@ import re
 from pyzbar.pyzbar import decode
 from datetime import datetime
 from dateutil.relativedelta import relativedelta as rd
+import subprocess
 
 
 from odoo import http
@@ -196,83 +197,86 @@ class Borrows(models.Model):
             if rec:
                 rec.state = 'delayed'
 
-    """ Scan barcode student """
+
     def action_barcode_name_student(self, vals):
-        cap = cv2.VideoCapture(0)
-        if not cap.isOpened():
-            print("Không thể mở camera. Hãy chắc chắn rằng không có ứng dụng khác sử dụng camera.")
-            return
-        while True:
-            vals, frame = cap.read()
-            cv2.imshow('Camera', frame)
-            decoded_objects = decode(frame)
-            for obj in decoded_objects:
-                barcode_data = obj.data.decode('utf-8')
-                
-                print(f'Mã Barcode đã quét: \n{barcode_data}')
+        """ Scan student barcode using zbarcam (ổn định, không dùng cv2) """
+        try:
+            # Mở zbarcam
+            process = subprocess.Popen(['zbarcam', '--raw'], stdout=subprocess.PIPE)
+            print("🎥 Đang mở camera để quét mã sinh viên...")
+
+            for line in iter(process.stdout.readline, b''):
+                barcode_data = line.decode('utf-8').strip()
+                print(f'📦 Mã Barcode đã quét: {barcode_data}')
+
                 match = re.search(r'(\d+)', barcode_data)
                 if match:
                     barcode_name = int(match.group(1))
-                    print(f'ID Student Barcode: {barcode_name}')
+                    print(f'🎯 ID Student Barcode: {barcode_name}')
 
-                    student = self.env['library.card'].search([('id_student', '=', barcode_name)],limit = 1)
+                    # Tìm thẻ sinh viên
+                    student = self.env['library.card'].search([('id_student', '=', barcode_name)], limit=1)
 
                     if student:
                         self.code_id = student.id
-                        print(f'Student ID: {self.name_card_id}')
+                        print(f'✅ Đã tìm thấy thẻ bạn đọc: {student.name_borrower}')
                     else:
-                        raise UserError('Student not found.')
-                    cap.release()
-                    cv2.destroyAllWindows()
-                    return
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-        cap.release()
-        cv2.destroyAllWindows()
+                        raise UserError('❌ Không tìm thấy sinh viên trong hệ thống.')
 
+                    process.terminate()  # Kết thúc quét sau khi tìm được
+                    return
+        except FileNotFoundError:
+            raise UserError("Không tìm thấy `zbarcam`. Cài đặt bằng: sudo apt install zbar-tools")
+        except Exception as e:
+            raise UserError(f"Lỗi khi quét mã sinh viên: {e}")
 
 
     def action_scan_qr_book_copies(self, vals):
+        """ Quét mã QR sách mượn bằng zbarcam (thay cv2) """
         if not self.code_id:
             raise UserError('Xác định thẻ bạn đọc trước khi thêm sách mượn.')
-        cap = cv2.VideoCapture(0)
-        if not cap.isOpened():
-            print("Không thể mở camera. Hãy chắc chắn rằng không có ứng dụng khác sử dụng camera.")
-            return
-        while True:
-            vals, frame = cap.read()
-            cv2.imshow('Camera', frame)
-            decoded_objects = decode(frame)
-            for obj in decoded_objects:
-                barcode_data = obj.data.decode('utf-8')
-                
-                print(f'Mã Barcode đã quét: \n{barcode_data}')
+
+        try:
+            # Mở camera và bắt đầu quét mã
+            process = subprocess.Popen(['zbarcam', '--raw'], stdout=subprocess.PIPE)
+            print("🎥 Đang mở camera để quét mã sách...")
+
+            for line in iter(process.stdout.readline, b''):
+                barcode_data = line.decode('utf-8').strip()
+                print(f'📦 Mã Barcode đã quét: {barcode_data}')
+
                 match = re.search(r'(\d+)', barcode_data)
-                if match:
-                    barcode_book_copies = int(match.group(1))
-                    print(f'DKCB : {barcode_book_copies}')
+                if not match:
+                    continue
 
-                    book_copies = self.env['book.copies'].search([('DK_CB', '=', barcode_book_copies)], limit=1)
+                barcode_book_copies = int(match.group(1))
+                print(f'🎯 DKCB: {barcode_book_copies}')
 
-                    if book_copies:
-                        if book_copies in self.book_copy_list_ids:
-                            raise UserError(f'Sách {book_copies.book_id.name} - {book_copies.DK_CB} đã có trong danh sách mượn.')
-                        
-                        if book_copies.state == 'borrowed':
-                            raise UserError(f'Trạng thái của sách {book_copies.book_id.name} - {book_copies.DK_CB} đã được mượn.')
-                        
-                        self.book_copy_list_ids = [(4, book_copies.id)]
-                    else:
-                        print('Book Copy not found.')
-                        continue  # Continue scanning without stopping the system
+                # Tìm bản sao sách
+                book_copies = self.env['book.copies'].search([('DK_CB', '=', barcode_book_copies)], limit=1)
 
-                    cap.release()
-                    cv2.destroyAllWindows()
-                    return
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-        cap.release()
-        cv2.destroyAllWindows()
+                if book_copies:
+                    if book_copies in self.book_copy_list_ids:
+                        raise UserError(f'Sách {book_copies.book_id.name} - {book_copies.DK_CB} đã có trong danh sách mượn.')
+
+                    if book_copies.state == 'borrowed':
+                        process.terminate()
+                        raise UserError(f'Sách {book_copies.book_id.name} - {book_copies.DK_CB} đang được mượn.')
+
+                    # Thêm sách vào danh sách mượn
+                    self.book_copy_list_ids = [(4, book_copies.id)]
+                    print(f'✅ Đã thêm sách: {book_copies.book_id.name} - {book_copies.DK_CB}')
+                else:
+                    print('❌ Không tìm thấy bản sao sách trong hệ thống.')
+                    continue
+
+                process.terminate()
+                return  # Sau khi quét 1 sách thì dừng (hoặc bạn có thể lặp nếu muốn scan nhiều lần)
+        except FileNotFoundError:
+            raise UserError("Không tìm thấy `zbarcam`. Cài đặt bằng: sudo apt install zbar-tools")
+        except Exception as e:
+            raise UserError(f"Lỗi khi quét mã sách: {e}")
+
 
 
 class ResPartner(models.Model):

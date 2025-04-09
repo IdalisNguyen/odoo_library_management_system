@@ -113,6 +113,8 @@ class PurchaseOrder(models.Model):
                         'vergion': line.product_id.vergion,
                         'author_ids': line.product_id.author_ids.ids,
                         'number_of_pages': line.product_id.number_of_pages,
+                        'rack_ids': line.product_id.rack.id,
+                        'shelf_ids': line.product_id.library_shelf_id.id,
                     }
                     if book:
                         book.write(book_data)
@@ -121,7 +123,11 @@ class PurchaseOrder(models.Model):
 
                     dk_cb_list = []
                     for i in range(int(line.product_qty)):  # Lặp theo số lượng sách
-                        DK_CB = self.generate_serial_number_by_category(book.category_ids.id, line.product_id.library_shelf_id.rack_id.code, line.product_id.library_shelf_id.id)  # Gọi hàm mới
+                        DK_CB = self.generate_serial_number_by_category(book.category_ids.id, line.product_id.rack.code, line.product_id.library_shelf_id.id)  # Gọi hàm mới
+                        print("book.category_ids.id",book.category_ids.id)
+                        print(" line.product_id.library_shelf_id.rack_id.code,", line.product_id.rack.code)
+                        print("line.product_id.library_shelf_id.id", line.product_id.library_shelf_id.id)
+                        
                         book_copy = self.env['book.copies'].create({
                             'book_id': book.id,
                             'DK_CB': DK_CB,
@@ -229,8 +235,8 @@ class ProductProduct(models.Model):
 
     book_copies_ids = fields.One2many('book.copies', 'product_id', string="Book Copies")
     
-    library_shelf_id = fields.Many2one('library.shelf',related='book_copies_ids.library_shelf_id', string="Kệ Sách")
-    library_rack_id = fields.Many2one('library.rack', related='library_shelf_id.rack_id', store=True, string="Giá Sách")
+    library_shelf_stock_id = fields.Many2one('library.shelf',related='book_copies_ids.library_shelf_id', string="Kệ Sách")
+    library_rack_stock_id = fields.Many2one('library.rack', related='library_shelf_id.rack_id', store=True, string="Giá Sách")
    
     
     qty_borrowed_book_copies = fields.Integer(

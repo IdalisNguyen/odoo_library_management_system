@@ -2,11 +2,11 @@
 from datetime import timedelta, datetime, date
 from odoo import models, fields, api , _
 from odoo.exceptions import ValidationError as UserError
-import cv2,csv,os
 import re
 from pyzbar.pyzbar import decode
 from datetime import datetime
 from dateutil.relativedelta import relativedelta as rd
+import subprocess
 
 
 
@@ -79,49 +79,52 @@ class LibraryCard(models.Model):
     
     def action_return_book(self):
         if not self.code:
-            raise UserError('Xác định thẻ bạn đọc trước khi thêm sách mượn.')
-        cap = cv2.VideoCapture(0)
-        if not cap.isOpened():
-            print("Không thể mở camera. Hãy chắc chắn rằng không có ứng dụng khác sử dụng camera.")
-            return
-        while True:
-            vals, frame = cap.read()
-            cv2.imshow('Camera', frame)
-            decoded_objects = decode(frame)
-            for obj in decoded_objects:
-                barcode_data = obj.data.decode('utf-8')
-                
-                print(f'Mã Barcode đã quét: \n{barcode_data}')
+            raise UserError('Xác định thẻ bạn đọc trước khi trả sách.')
+
+        try:
+            process = subprocess.Popen(['zbarcam', '--raw'], stdout=subprocess.PIPE)
+            print("Đang quét mã sách để trả...")
+
+            for line in iter(process.stdout.readline, b''):
+                barcode_data = line.decode('utf-8').strip()
+                print(f'Mã Barcode đã quét: {barcode_data}')
                 match = re.search(r'(\d+)', barcode_data)
+
                 if match:
                     barcode_book_copies = int(match.group(1))
-                    print(f'DKCB : {barcode_book_copies}')
+                    print(f'DKCB: {barcode_book_copies}')
 
                     book_copies = self.env['book.copies'].search([('DK_CB', '=', barcode_book_copies)], limit=1)
 
                     if book_copies:
-                        # Find the borrow record associated with this book copy
+                        # Tìm borrow record liên quan
                         borrow_record = self.borrow_copies_ids.filtered(lambda b: book_copies in b.book_copy_list_ids)
                         if borrow_record:
-                            # Remove the book from the borrowed list
+                            # Bỏ sách khỏi danh sách mượn
                             borrow_record.book_copy_list_ids = [(3, book_copies.id)]
+
+                            # Nếu không còn sách nào => chuyển trạng thái về 'ended'
                             if not borrow_record.book_copy_list_ids:
-                                borrow_record.state = 'ended'  # Update the borrow record state to 'ended' if no books are left
+                                borrow_record.state = 'ended'
+
+                            # Cập nhật trạng thái sách
                             book_copies.state = 'available'
-                            print(f'Removed Book Copy from Borrowed List: {book_copies.id}')
+
+                            print(f'✅ Đã trả sách: {book_copies.book_id.name} ({book_copies.DK_CB})')
                         else:
-                            print('Borrow record not found for this book copy.')
-                            continue  
+                            print('⚠️ Không tìm thấy phiếu mượn liên quan đến sách này.')
+                            continue
                     else:
-                        print('Book Copy not found.')
-                        continue  
-                    cap.release()
-                    cv2.destroyAllWindows()
+                        print('❌ Không tìm thấy bản sao sách trong hệ thống.')
+                        continue
+
+                    # Dừng quét sau khi đã xử lý 1 sách
+                    process.terminate()
                     return
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-        cap.release()
-        cv2.destroyAllWindows()                
+        except FileNotFoundError:
+            raise UserError("Không tìm thấy `zbarcam`. Cài bằng: sudo apt install zbar-tools")
+        except Exception as e:
+            raise UserError(f"Lỗi khi quét mã sách: {e}")            
                 
     def _compute_email(self):
         for rec in self:
@@ -155,31 +158,31 @@ class LibraryCard(models.Model):
         library_card_obj = self.env["library.card"]
         for rec in library_card_obj.search([("end_borrow", "<", current_date)]):
             rec.state = "expire"
+     
+    def action_scan_barcode_name_student(self, vals):
+        """ Scan barcode of student using zbarcam """
+        try:
+            # Khởi động zbarcam dưới dạng process
+            process = subprocess.Popen(['zbarcam', '--raw'], stdout=subprocess.PIPE)
+            print("Đang chờ quét mã barcode sinh viên... (Bấm Ctrl+C hoặc đóng cửa sổ camera để hủy)")
 
-    def action_scan_barcode_name_student(self,vals):
-        """ scan barcode of student """
-        cap = cv2.VideoCapture(0)
-        if not cap.isOpened():
-            print("Không thể mở camera.")
-            return
-        while True:
-            ret, frame = cap.read()
-            cv2.imshow('Camera', frame)
-            decoded_objects = decode(frame)
-            for obj in decoded_objects:
-                barcode_data = obj.data.decode('utf-8')
-                print(f'Mã Barcode đã quét: \n{barcode_data}')
+            for line in iter(process.stdout.readline, b''):
+                barcode_data = line.decode('utf-8').strip()
+                print(f'Mã Barcode đã quét: {barcode_data}')
+                
                 match = re.search(r'(\d+)', barcode_data)
                 if match:
-                    self.id_student = match.group(1)  # Lưu ID sinh viên vào trường id_student
-                    print(f'ID Sinh Viên: {self.id_student}')
-                cap.release()
-                cv2.destroyAllWindows()
-                return
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-        cap.release()
-        cv2.destroyAllWindows()
+                    student_id = match.group(1)
+                    self.id_student = student_id  # Gán vào trường id_student
+                    print(f'ID Sinh Viên: {student_id}')
+                    process.terminate()
+                    return
+        except FileNotFoundError:
+            raise UserError("Không tìm thấy lệnh `zbarcam`. Hãy cài đặt bằng: sudo apt install zbar-tools")
+        except Exception as e:
+            raise UserError(f"Lỗi khi quét mã: {e}")
+            
+        
         
     def update_ended_card(self):
         """Update state to ended"""
@@ -233,7 +236,7 @@ class LibraryCard(models.Model):
     @api.model
     def process_return(self):
         """Process the return of borrowed books by scanning QR code"""
-        code = self.action_scan_qr_return_borrow()
+        code = self.scan_barcode_with_zbarcam()
         if code:
             return {
                 'type': 'ir.actions.act_window',
@@ -251,28 +254,18 @@ class LibraryCard(models.Model):
                 'type': 'ir.actions.act_window_close'
             }
 
-    def action_scan_qr_return_borrow(self):
-        """Scan QR code to retrieve student ID"""
-        cap = cv2.VideoCapture(0)
-        if not cap.isOpened():
-            print("Không thể mở camera. Hãy chắc chắn rằng không có ứng dụng khác sử dụng camera.")
-            return False
-        while True:
-            ret, frame = cap.read()
-            cv2.imshow('Camera', frame)
-            decoded_objects = decode(frame)
-            for obj in decoded_objects:
-                barcode_data = obj.data.decode('utf-8')
-                print(f'Mã Barcode đã quét: {barcode_data}')
-                match = re.search(r'(\d+)', barcode_data)
-                if match:
-                    barcode_name = match.group(1)
-                    print(f'ID Student Barcode: {barcode_name}')
-                    cap.release()
-                    cv2.destroyAllWindows()
-                    return barcode_name
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-        cap.release()
-        cv2.destroyAllWindows()
-        return False
+
+
+
+    def scan_barcode_with_zbarcam(self):
+        try:
+            process = subprocess.Popen(['zbarcam', '--raw'], stdout=subprocess.PIPE)
+            print("Đang chờ quét mã...")
+            for line in iter(process.stdout.readline, b''):
+                barcode_data = line.decode('utf-8').strip()
+                print(f'Mã đã quét: {barcode_data}')
+                process.terminate()
+                return barcode_data
+        except Exception as e:
+            print(f'Lỗi: {e}')
+            return None

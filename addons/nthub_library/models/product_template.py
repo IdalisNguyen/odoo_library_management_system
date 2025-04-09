@@ -24,12 +24,13 @@ class ProductTemplate(models.Model):
         ('old','Chọn Giá sách hiện có')
     ] , help="Tạo mới Giá sách/Chọn Giá sách hiện có", string="Chọn Giá sách lưu ", default = "old")
 
-    rack = fields.Many2one('library.rack' , required=True)
+    rack = fields.Many2one('library.rack' , required=True, store=True )
 
     library_shelf_id = fields.Many2one(
         'library.shelf', 
         required=True,
         string="Kệ Sách", 
+        store=True,
         domain="[('id', 'in', available_shelf_ids)]"
     )
 
