@@ -22,8 +22,8 @@
                 <field name="display_name" string="Product"/>
                 <field name="qty_available" string="Số Lượng Hiện Tại" sum="Total On Hand" readonly="1"/>
                 <field name="qty_borrowed_book_copies" string="Bản Sao Đã Mượn" sum="Total Borrowed" readonly="1"/>
-                <field name="library_shelf_id" readonly="1"/>
-                <field name="library_rack_id" readonly="1"/>
+                <field name="library_rack_stock_id" readonly="1"/>
+                <field name="library_shelf_stock_id" readonly="1"/>
 
             </tree>
         </xpath>

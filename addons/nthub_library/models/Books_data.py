@@ -38,7 +38,8 @@ class Books_data(models.Model):
     invoice = fields.Char(string="Invoice")
     product_id = fields.Many2one('product.product', string='Product')  # Liên kết với sản phẩm
     
-    
+    rack_ids = fields.Many2one('library.rack', string="Library Rạck")
+    shelf_ids = fields.Many2one('library.shelf', string="Library Shelf")
     
     @api.depends('copy_ids')
     def _compute_copy_count(self):

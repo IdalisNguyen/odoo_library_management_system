@@ -22,6 +22,8 @@
                                 <field name="vergion"/>
                                 <field name="ispn"/>
                                 <field name="category_ids"/>
+                                <field name="rack_ids"/>
+                                <field name="shelf_ids"/>
                                 <field name="author_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
                                 <field name="number_of_pages"/>
                                 <field name="copy_count"/>
