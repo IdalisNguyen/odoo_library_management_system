@@ -24,7 +24,11 @@ class ProductTemplate(models.Model):
         ('old','Chọn Giá sách hiện có')
     ] , help="Tạo mới Giá sách/Chọn Giá sách hiện có", string="Chọn Giá sách lưu ", default = "old")
 
-    rack = fields.Many2one('library.rack' , required=True, store=True )
+    rack = fields.Many2one(
+        'library.rack',
+        required=False,
+        store=True
+    )
 
     library_shelf_id = fields.Many2one(
         'library.shelf', 
@@ -44,6 +48,39 @@ class ProductTemplate(models.Model):
         help="To active/deactive record")
     library_shelf_ids = fields.Many2many('library.shelf', 'product_shelf_rel',
                                   'shelf_id', 'product_id', string="Shelf") 
+
+
+
+    
+    
+    @api.onchange('select_rack')
+    def _onchange_select_rack(self):
+        if self.select_rack == 'new':
+            self.rack = False
+            self.env['library.rack'].create({
+                'name_category_id': self.category_ids,
+                'name': self.name_rack,
+                'code': self.code_rack,
+                'active': self.active_rack,
+                'library_shelf_ids': [(6, 0, self.library_shelf_ids.ids)]
+            })      
+
+    @api.constrains('select_rack', 'rack')
+    def _check_rack_required(self):
+        for record in self:
+            if record.select_rack != 'new' and not record.rack:
+                raise UserError("The 'Rack' field is required when 'Select Rack' is not set to 'Create New Rack'.")
+            
+    @api.constrains('code_rack', 'name_rack', 'active_rack', 'library_shelf_ids')
+    def _check_rack_fields(self):
+        for record in self:
+            if record.select_rack == 'new':
+                if not record.code_rack or not record.name_rack or not record.active_rack:
+                    raise UserError("Please fill in all required fields: code, name, and active status.")
+                if not record.library_shelf_ids:
+                    raise UserError("Please select at least one shelf.")
+    
+       
 
     @api.depends('product_variant_ids')
     def _compute_stock_quantity(self):

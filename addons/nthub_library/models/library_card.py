@@ -139,8 +139,26 @@ class LibraryCard(models.Model):
         """Change state to running"""
         # self.code = self.env["ir.sequence"].next_by_code("library.card"
         #         ) or _("New")
-        self.code = f"LIB_{self.id_student}"   
-        self.state = "running"
+        for record in self:
+            record.code = f"LIB_{self.id_student}"   
+            record.state = "running"
+            if record.email and record.code:
+                group_user = self.env.ref('nthub_library.library_group_user')
+                existing_user = self.env['res.users'].search([('login', '=', record.email)], limit=1)
+                if not existing_user:
+                    self.env['res.users'].create({
+                        'name': record.name_borrower,
+                        'login': record.email,
+                        'email': record.email,
+                        'password': record.id_student or record.id_teacher,
+                        'groups_id': [(4, group_user.id)],  # ✅ chỉ thêm 1 group
+                    })
+                else:
+                    # Nếu user đã tồn tại, vẫn thêm group thư viện nếu chưa có
+                    if group_user.id not in existing_user.groups_id.ids:
+                        existing_user.groups_id = [(4, group_user.id)]  # ✅ giữ nguyên các quyền cũ
+                    else:
+                        raise UserError(f"⚠️ Email {record.email} đã tồn tại và đã có quyền thư viện.")
 
     def draft_state(self):
         """Change state to draft"""
@@ -183,7 +201,7 @@ class LibraryCard(models.Model):
             raise UserError(f"Lỗi khi quét mã: {e}")
             
         
-        
+    #cron update ended card
     def update_ended_card(self):
         """Update state to ended"""
         current_date = fields.Date.today()
@@ -192,47 +210,6 @@ class LibraryCard(models.Model):
         
         
 
-    # Existing fields and methods...
-    def check_and_generate_report(self):
-        """Check and generate report for students or teachers with borrowed books"""
-        input_dir = '/path/to/input/'  # Directory containing CSV files
-        output_dir = '/path/to/output/'  # Directory to save reports
-
-        if not os.path.exists(input_dir):
-            print("Input directory not found.")
-            return
-
-        # Iterate through all CSV files in the directory
-        for filename in os.listdir(input_dir):
-            if filename.endswith('.csv'):
-                input_file_path = os.path.join(input_dir, filename)
-                report_data = []
-
-                # Read IDs from the current CSV file
-                with open(input_file_path, 'r') as file:
-                    reader = csv.reader(file)
-                    ids_to_check = [row[0] for row in reader]
-
-                # Check for borrowed books
-                for rec in self.search([('id_student', 'in', ids_to_check)]):
-                    if rec.borrow_copies_ids and rec.state == 'running':
-                        report_data.append({
-                            'id_student': rec.id_student,
-                            'name_borrower': rec.name_borrower,
-                            'borrowed_books': len(rec.borrow_copies_ids),
-                        })
-
-                # Generate report if there are unreturned books
-                if report_data:
-                    report_file_path = os.path.join(output_dir, f'report_{filename}')
-                    with open(report_file_path, 'w', newline='') as report_file:
-                        writer = csv.DictWriter(report_file, fieldnames=['id_student', 'name_borrower', 'borrowed_books'])
-                        writer.writeheader()
-                        writer.writerows(report_data)
-                    print(f"Report generated: {report_file_path}")
-                else:
-                    print(f"No borrowed books found in {filename}.")
-                   
     @api.model
     def process_return(self):
         """Process the return of borrowed books by scanning QR code"""
