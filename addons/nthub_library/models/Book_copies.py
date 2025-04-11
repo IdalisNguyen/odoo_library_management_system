@@ -93,14 +93,12 @@ class bookcopies(models.Model):
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
     
-    
     library_label_ids = fields.One2many('library.label.report','purchase_order_id',string="Labels book")
-
+    
+    #select_rack
     def button_confirm(self):
         res = super(PurchaseOrder, self).button_confirm()
-        
-        for order in self:
-            for line in order.order_line:
+        for line in self.order_line:
                 if line.product_id:  # Chỉ xử lý sản phẩm vật lý
                     book = self.env['books.data'].search([('product_id', '=', line.product_id.id)], limit=1)
                     book_data = {
@@ -113,27 +111,29 @@ class PurchaseOrder(models.Model):
                         'vergion': line.product_id.vergion,
                         'author_ids': line.product_id.author_ids.ids,
                         'number_of_pages': line.product_id.number_of_pages,
-                        'rack_ids': line.product_id.rack.id,
-                        'shelf_ids': line.product_id.library_shelf_id.id,
                     }
+                    if line.product_id.select_rack != 'new':
+                        book_data['rack_ids'] = line.product_id.rack.id
+                        book_data['shelf_ids'] = line.product_id.library_shelf_id.id
+                    else:
+                        rack = self.env['library.rack'].search([['code', '=', line.product_id.code_rack]], limit=1)
+                        book_data['rack_ids'] = rack.id
+                        book_data['shelf_ids'] = line.product_id.library_shelf_ids.id
+                    
                     if book:
                         book.write(book_data)
                     else:
                         book = self.env['books.data'].create(book_data)
-
+                    
                     dk_cb_list = []
                     for i in range(int(line.product_qty)):  # Lặp theo số lượng sách
-                        DK_CB = self.generate_serial_number_by_category(book.category_ids.id, line.product_id.rack.code, line.product_id.library_shelf_id.id)  # Gọi hàm mới
-                        print("book.category_ids.id",book.category_ids.id)
-                        print(" line.product_id.library_shelf_id.rack_id.code,", line.product_id.rack.code)
-                        print("line.product_id.library_shelf_id.id", line.product_id.library_shelf_id.id)
-                        
+                        DK_CB = self.generate_serial_number_by_category(book.category_ids.id, book_data['rack_ids'], book_data['shelf_ids'])
                         book_copy = self.env['book.copies'].create({
                             'book_id': book.id,
                             'DK_CB': DK_CB,
-                            'library_shelf_id': line.product_id.library_shelf_id.id,
+                            'library_shelf_id': book_data['shelf_ids'],
                         })
-                        dk_cb_list.append(book_copy.id)  
+                        dk_cb_list.append(book_copy.id)
                     
                     # Lưu DK_CB vào order line
                     line.dk_cb_ids = [(6, 0, dk_cb_list)]

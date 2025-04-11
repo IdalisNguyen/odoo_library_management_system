@@ -13,7 +13,7 @@
     'price': 0.0,
     'currency': 'D',
     'website': "",
-    'depends': ['base', 'website', 'board', 'mail','contacts','purchase','stock','mail'],
+    'depends': ['base', 'website', 'board', 'mail','contacts','purchase','stock','mail','portal'],
 
     'data': [
         'security/security.xml',
@@ -35,7 +35,7 @@
         'views/menu.xml',
         'views/stock_quant.xml',
         
-        
+        'views/portal.xml',
         'report/button_book_copy_labels.xml',
         'report/library_labels_report.xml',
         'views/product_template.xml'

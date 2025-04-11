@@ -62,7 +62,7 @@
                   <group name="new_rack" string="Chọn Giá sách hiện có" invisible="select_rack != 'old'">
                     <group>
                       <field name="available_shelf_ids" invisible="1"/>
-                      <field name="rack"/>
+                        <field name="rack" />
                       <field name="library_shelf_id" string="Kệ Sách" invisible="rack == False" domain="[('id', 'in', available_shelf_ids)]"/>
                     </group>
                   </group>

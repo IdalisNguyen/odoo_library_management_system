@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_home_library" inherit_id="portal.portal_my_home">
+        <xpath expr="//div[@class='o_portal_my_home']" position="inside">
+            <t t-set="library_card" t-value="request.env['library.card'].sudo().search([('email', '=', request.env.user.email)], limit=1)"/>
+            <t t-if="library_card">
+                <div class="alert alert-info mt-3">
+                    <strong>📚 Thông tin thẻ bạn đọc:</strong><br/>
+                    Mã thẻ: <t t-esc="library_card.code"/><br/>
+                    Họ tên: <t t-esc="library_card.name_borrower"/><br/>
+                    Ngày tạo: <t t-esc="library_card.start_borrow"/><br/>
+                    Ngày hết hạn: <t t-esc="library_card.end_borrow"/><br/>
+                    Trạng thái: <t t-esc="library_card.state"/>
+                </div>
+            </t>
+            <t t-if="not library_card">
+                <div class="alert alert-warning mt-3">
+                    ⚠️ Bạn chưa có thẻ bạn đọc trong hệ thống.
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+
+</odoo>

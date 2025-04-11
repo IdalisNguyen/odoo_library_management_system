@@ -9,10 +9,35 @@
             <field name="name">user</field>
             <field name="category_id" ref="nthub_library.library_test_category"/>
         </record>
+
+        <record id="group_library_user_type" model="res.groups">
+            <field name="name">Library User</field>
+            <field name="category_id" ref="base.module_category_user_type"/>
+            <field name="comment">Người dùng chỉ được truy cập các chức năng thư viện.</field>
+        </record>
+
+
         <record id="library_group_manger" model="res.groups">
             <field name="name">manager</field>
             <field name="category_id" ref="nthub_library.library_test_category"/>
-            <field name="implied_ids" eval="[(4,ref('nthub_library.library_group_user'))]"/>
+        </record>
+
+        <record id="library_group_board_of_directors" model="res.groups">
+            <field name="name">Ban Giám Đốc</field>
+            <field name="category_id" ref="nthub_library.library_test_category"/>
+            <field name="implied_ids" eval="[(4,ref('nthub_library.library_group_manger'))]"/>
+        </record>
+
+        <record id="library_group_librarian" model="res.groups">
+            <field name="name">Phòng công tác Bạn đọc</field>
+            <field name="category_id" ref="nthub_library.library_test_category"/>
+            <field name="implied_ids" eval="[(4,ref('nthub_library.library_group_manger'))]"/>
+        </record>
+
+        <record id="library_group_accountant" model="res.groups">
+            <field name="name">Phòng hành chính - nghiệp vụ</field>
+            <field name="category_id" ref="nthub_library.library_test_category"/>
+            <field name="implied_ids" eval="[(4,ref('nthub_library.library_group_manger'))]"/>
         </record>
 
 

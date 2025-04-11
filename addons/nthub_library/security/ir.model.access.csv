@@ -30,3 +30,11 @@ access_delay_library_label_report,library.label.report,model_library_label_repor
 access_delay_library_shelf,library.shelf,model_library_shelf,nthub_library.library_group_manger,1,1,1,1
 access_delay_library_rack,library.rack,model_library_rack,nthub_library.library_group_manger,1,1,1,1
 
+access_res_lang_library,res.lang access for library user,base.model_res_lang,nthub_library.library_group_user,1,0,0,0
+access_website_library_read,website read for library,website.model_website,nthub_library.library_group_user,1,0,0,0
+access_res_currency_library_read,res.currency for library,base.model_res_currency,nthub_library.library_group_user,1,0,0,0
+access_website_menu_library_read,website menu read for library,website.model_website_menu,nthub_library.library_group_user,1,0,0,0
+access_res_partner_library_read,res.partner read for library,base.model_res_partner,nthub_library.library_group_user,1,0,0,0
+access_res_users_library_read,res.users read for library,base.model_res_users,nthub_library.library_group_user,1,0,0,0
+
+

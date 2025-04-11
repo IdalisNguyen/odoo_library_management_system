@@ -29,17 +29,5 @@
                    eval="(DateTime.now().replace(hour=0, minute=0, second=1) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
         </record>
 
-        <!--Tự động tính toán thanh toán, ra trường khi bên trường gửi danh sách ra trường-->
-        <!-- <record id="ir_cron_borrow_check" model="ir.cron">
-            <field name="name">Library: Check Borrowed Books</field>
-            <field name="model_id" ref="model_library_card"/>
-            <field name="state">code</field>
-            <field name="code">model.check_and_generate_report()</field>
-            <field name="interval_number">1</field>
-            <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
-            <field name="doall" eval="False"/>
-            <field name="active" eval="True"/>
-        </record> -->
     </data>
 </odoo>
