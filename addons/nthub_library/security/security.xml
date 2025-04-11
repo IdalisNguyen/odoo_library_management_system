@@ -14,6 +14,8 @@
             <field name="name">Library User</field>
             <field name="category_id" ref="base.module_category_user_type"/>
             <field name="comment">Người dùng chỉ được truy cập các chức năng thư viện.</field>
+            <field name="implied_ids" eval="[(4,ref('nthub_library.library_group_user'))]"/>
+
         </record>
 
 
