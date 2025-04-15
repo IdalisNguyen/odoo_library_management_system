@@ -33,7 +33,8 @@
         <record id="library_group_librarian" model="res.groups">
             <field name="name">Phòng công tác Bạn đọc</field>
             <field name="category_id" ref="nthub_library.library_test_category"/>
-            <field name="implied_ids" eval="[(4,ref('nthub_library.library_group_manger'))]"/>
+            <field name="implied_ids" eval="[(4,ref('nthub_library.library_group_manger')),
+                                            (4,ref('base.group_erp_manager'))]"/>
         </record>
 
         <record id="library_group_accountant" model="res.groups">

@@ -14,9 +14,29 @@ class Borrows(CustomerPortal):
 
     @http.route('/my/home/borrows_list_details', type="http", auth='public', website=True)
     def get_borrows(self, **kw):
-        borrows_list = request.env['books.borrows'].sudo().search([])
+        library_card = request.env['library.card'].sudo().search([('email', '=', request.env.user.email)], limit=1)
+        print("library_card", library_card) 
+        print("library_card code code", library_card.code)
+        borrows_list = []
+        if library_card:
+            borrows_list = request.env['books.borrows'].sudo().search([('code_id', '=', library_card.code)])
+        print("library_card email", request.env.user.email)
+        print("library_card", library_card.code)
+        print("borrows_list", borrows_list)
         return request.render('nthub_library.borrows_list_page', {'my_details': borrows_list}
                               , {'page_name': 'borrow_list'})
+
+
+
+
+    @http.route(['/desired_borrower/<int:order_id>'], type="http", website=True, auth='public')
+    def get_borrower_form(self, order_id, **kw):
+        order = request.env['books.borrows'].sudo().browse(order_id)
+        vals = {"order": order}
+        print("order", order)
+        return request.render('nthub_library.borrower_detail_form_shown_link', vals, {'page_name': 'desired_borrower'})
+
+
 
     @http.route('/my/borrows_form', type="http", auth='public', website=True, csrf=True)
     def borrowing_form_view(self, **kwargs):
@@ -37,8 +57,3 @@ class Borrows(CustomerPortal):
                                        , {'page_name': 'borrowing_created'})
         return response
 
-    @http.route(['/desired_borrower/<int:order_id>'], type="http", website=True, auth='public')
-    def get_borrower_form(self, order_id, **kw):
-        order = request.env['books.borrows'].sudo().browse(order_id)
-        vals = {"order": order}
-        return request.render('nthub_library.borrower_detail_form_shown_link', vals, {'page_name': 'desired_borrower'})

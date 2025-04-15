@@ -32,7 +32,6 @@ class ProductTemplate(models.Model):
 
     library_shelf_id = fields.Many2one(
         'library.shelf', 
-        required=True,
         string="Kệ Sách", 
         store=True,
         domain="[('id', 'in', available_shelf_ids)]"

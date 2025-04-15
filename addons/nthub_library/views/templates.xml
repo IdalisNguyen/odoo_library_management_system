@@ -1,25 +1,40 @@
 <odoo>
       <template id="portal_my_borrows_home"  name="Show Borrows" customize_show="True" inherit_id="portal.portal_my_home">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
-            <t t-call="portal.portal_docs_entry">
+            <!-- <t t-call="portal.portal_docs_entry">
                 <t t-set="url">/my/home/borrows_list_details</t>
                 <t t-set="title">Borrows Details</t>
                 <t t-set="placeholder_count" t-value="'borrow_count'"/>
-            </t>
+            </t> -->
+            <div class="o_portal_category row g-2 mt-3">
+                <!-- <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/nthub_library/static/description/library_card.png'"/>
+                    <t t-set="title">Thông tin thẻ bạn đọc:</t>
+                    <t t-set="text">Mã thẻ: <t t-esc="library_card.code"/><br/>
+                                    Họ tên: <t t-esc="library_card.name_borrower"/><br/>
+                                    Ngày tạo: <t t-esc="library_card.start_borrow"/><br/>
+                                    Ngày hết hạn: <t t-esc="library_card.end_borrow"/><br/>
+                                    Trạng thái: <t t-esc="library_card.state"/></t>
+                    <t t-set="url" t-value="'/my/library'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t> -->
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/nthub_library/static/description/library_card.png'"/>
+                    <t t-set="url">/my/home/borrows_list_details</t>
+                    <t t-set="title">Chi tiết các phiếu mượn</t>
+                    <t t-set="placeholder_count" t-value="'borrow_count'"/>
+                </t>
+            </div>
+
         </xpath>
     </template>
 
-<!-- <record id="menu_borrow" model="website.menu">-->
-<!--        <field name="name">Borrows</field>-->
-<!--        <field name="url">/my/home/borrows_list_details</field>-->
-<!--        <field name="parent_id" ref="website.main_menu"/>-->
-<!--        <field name="sequence" type="int">10</field>-->
-<!--    </record>-->
+
     <template id="borrows_list_page" name="Borrows details">
         <t t-call="portal.portal_layout">
             <div class="oe_structure">
                 <div class="container">
-                    <h2>Borrows Details</h2>
+                    <h2>CHI TIẾT CÁC PHIẾU MƯỢN</h2>
                     <a t-attf-href="/my/borrows_form?{{ keep_query() }}">
                         <button type="button" class="btn btn-info btn-md" id="create_resignation">Create Resignation
                         </button>
@@ -27,16 +42,14 @@
                     <table class="table-striped table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Book</th>
-                                <th>Start Borrow</th>
-                                <th>Email Borrower</th>
-                                <th>state</th>
-                                <th>End Borrow</th>
-                                <th>Day Price</th>
-                                <th>Delay Duration</th>
-                                <th>Delay Penalties</th>
-                                <th>Borrows Duration</th>
+                                <th>Tên Bạn đọc</th>
+                                <th>Tên Sách</th>
+                                <th>Ngày Mượn</th>
+                                <th>Email bạn đọc</th>
+                                <th>Trạng Thái</th>
+                                <th>Ngày Trả</th>
+                                <th>Thời hạn mượn / (Tháng)</th>
+                                <th>Phạt</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -44,17 +57,17 @@
                                 <tr>
                                     <td>
                                         <a t-attf-href="/desired_borrower/#{order.id}">
-                                            <span t-esc="order.name.name"/>
+                                            <span t-esc="order.code_id.name_borrower"/>
                                         </a>
                                     </td>
                                     <td>
-                                        <span t-esc="order.book_id.name"/>
+                                        <span t-esc="order.book_copy_list_ids.book_id.name"/>
                                     </td>
                                     <td>
                                         <span t-esc="order.start_borrow"/>
                                     </td>
                                     <td>
-                                        <span t-esc="order.email"/>
+                                        <span t-esc="order.code_id.email"/>
                                     </td>
                                     <td>
                                         <span t-esc="order.state"/>
@@ -63,20 +76,15 @@
                                         <span t-esc="order.end_borrow"/>
                                     </td>
                                     <td>
-                                        <span t-esc="order.daily_price"/>
+                                        <span t-esc="order.borrows_duration"/>
                                     </td>
                                     <td>
                                         <span t-esc="order.delay_duration"/>
                                     </td>
-                                    <td>
-                                        <span t-esc="order.delay_penalties"/>
-                                    </td>
-                                    <td>
-                                        <span t-esc="order.borrows_duration"/>
-                                    </td>
                                 </tr>
                             </t>
                         </tbody>
+                        
                     </table>
                 </div>
             </div>
@@ -158,6 +166,7 @@
             </div>
         </t>
     </template>
+    
     <template id="borrower_detail_form_shown_link" inherit_id="portal.portal_sidebar">
         <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
             <section style="background-color:#eee;">

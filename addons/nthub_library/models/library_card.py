@@ -33,7 +33,6 @@ class LibraryCard(models.Model):
     
     """note"""
     name_borrower = fields.Char(string='Tên Bạn Đọc',size=250)
-    email = fields.Char(string='Email bạn đọc', size=256, readonly=True, compute='_compute_email')
     user = fields.Selection([("student", "Sinh Viên"), ("teacher", "Giảng Viên")],
         "Bạn Đọc", help="Select user")
     state = fields.Selection([
@@ -66,6 +65,20 @@ class LibraryCard(models.Model):
         compute="_compute_list_book_copy_borrowed",
         help="Danh sách các sách đã mượn"
     )
+
+    email = fields.Char(string='Email bạn đọc', size=256, readonly=True, compute='_compute_email',store = True)
+    
+    
+    @api.depends('user', 'id_student', 'id_teacher')
+    def _compute_email(self):
+        for rec in self:
+            if rec.user == 'student' and rec.id_student:
+                rec.email = '{}@sv.ttn.edu.vn'.format(rec.id_student)
+            elif rec.user == 'teacher' and rec.id_teacher:
+                rec.email = '{}@gv.ttn.edu.vn'.format(rec.id_teacher)
+            else:
+                rec.email = ''
+
 
     @api.depends('borrow_copies_ids')
     def _compute_list_book_copy_borrowed(self):
@@ -126,24 +139,16 @@ class LibraryCard(models.Model):
         except Exception as e:
             raise UserError(f"Lỗi khi quét mã sách: {e}")            
                 
-    def _compute_email(self):
-        for rec in self:
-            if rec.user == 'student' and rec.id_student:
-                rec.email = '{}@sv.ttn.edu.vn'.format(rec.id_student)
-            elif rec.user == 'teacher' and rec.id_teacher:
-                rec.email = '{}@gv.ttn.edu.vn'.format(rec.id_teacher)
-            else:
-                rec.email = ''
-
     def running_state(self):
         """Change state to running"""
         # self.code = self.env["ir.sequence"].next_by_code("library.card"
         #         ) or _("New")
+        self.state = "running"
         for record in self:
             record.code = f"LIB_{self.id_student}"   
             record.state = "running"
             if record.email and record.code:
-                group_user = self.env.ref('nthub_library.library_group_user')
+                group_user = self.env.ref('nthub_library.group_library_user_type')
                 existing_user = self.env['res.users'].search([('login', '=', record.email)], limit=1)
                 if not existing_user:
                     self.env['res.users'].create({

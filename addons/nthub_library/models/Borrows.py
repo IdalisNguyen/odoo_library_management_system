@@ -283,5 +283,6 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
 
     borrow_ids = fields.One2many('books.borrows', 'name_card_id', string='Books')
-    card_no = fields.One2many('library.card','student_id', string='Library Card')    
+    # card_no = fields.One2many('library.card','student_id', string='Library Card')    
+    card_no_id = fields.Many2one('library.card', string='Library Card')    
     # library_card_code = fields.Char(related='card_no.code', string='Library Card Code')
