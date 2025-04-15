@@ -13,7 +13,7 @@
     'price': 0.0,
     'currency': 'D',
     'website': "",
-    'depends': ['base', 'website', 'board', 'mail','contacts','purchase','stock','mail','portal'],
+    'depends': ['base', 'website', 'board', 'mail','contacts','purchase','stock','mail','portal','web'],
 
     'data': [
         'security/security.xml',

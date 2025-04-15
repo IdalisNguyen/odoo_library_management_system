@@ -29,6 +29,16 @@
         </xpath>
     </template>
 
+    <template id="my_custom_layout" name="My Custom Layout" inherit_id="portal.portal_layout">
+        <xpath expr="//div[@t-attf-class='o_portal_content col-12 col-lg-8 mb-5']" position="attributes">
+            <attribute name="t-attf-class">o_portal_content col-12 col-lg-10 mb-5</attribute>
+        </xpath>
+        <xpath expr="//div[@class='d-none d-lg-flex justify-content-end col-lg-4']" position="attributes">
+            <attribute name="class">d-none d-lg-flex justify-content-end col-lg-2</attribute>
+        </xpath>
+    </template>
+
+
 
     <template id="borrows_list_page" name="Borrows details">
         <t t-call="portal.portal_layout">
@@ -225,4 +235,164 @@
             </section>
         </xpath>
     </template>
+
+    <!-- list books category-->
+    <template id="library_home_category" name="Thư viện - Danh mục">
+        <t t-call="portal.portal_layout">
+            <section class="s_text_block pt40 pb0 o_colored_level" data-snippet="s_text_block" data-name="Văn bản" style="background-image: none;">
+                <div class="container s_allow_columns">
+                    <h2 style="text-align: center;">Danh Mục</h2>
+                </div>
+            </section>
+            <section class="s_text_block pt40 pb40 o_colored_level" data-snippet="s_text_block" data-name="Văn bản" style="background-image: none;">
+                    <div class="container s_allow_columns">
+                        <p>Great stories have a <b>personality</b>. Consider 
+                    <a href="http://localhost:8068/blog">Blog
+                    </a>telling a great story that provides personality. Writing a story with personality for potential clients will assist with making a relationship connection. This shows up in small quirks like word choices or phrases. Write from your point of view, not from someone else's experience.</p>
+                        <p>Great stories are <b>for everyone</b> even when only written <b>for just one person</b>. If you try to write with a wide, general audience in mind, your story will sound fake and lack emotion. No one will be interested. Write for one person. If it’s genuine for the one, it’s genuine for the rest.</p>
+                    </div>
+            </section>
+            <section class="s_three_columns o_cc o_cc2 pt32 pb32 o_colored_level" data-vcss="001">
+                <div class="container">
+                    <div class="row d-flex align-items-stretch">
+                        <t t-foreach="categories" t-as="category">
+                            <div class="col-lg-4 s_col_no_bgcolor pt16 pb16">
+                                <div class="card text-bg-white h-100">
+                                    <a t-att-href="'/category=' + str(category.id)+'/book'">
+                                        <img class="card-img-top" src="/web/image/website.s_three_columns_default_image_1" alt=""/>
+                                        <div class="card-body">
+                                            <h3 class="card-title"><span t-esc="category.name"/></h3>
+                                            <p class="card-text"><span t-esc="category.description"/></p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </section>
+        </t>
+    </template>       
+
+
+    <!-- list books data-->
+    <template id="library_books_data" name="Thư viện - Đầu sách">
+        <t t-call="portal.portal_layout">
+
+            <section class="s_cover parallax s_parallax_is_fixed bg-black-50 pt96 pb96 o_colored_level" data-scroll-background-ratio="1" data-snippet="s_cover" data-name="Ảnh bìa" style="background-image: none;">
+                    <span class="s_parallax_bg oe_img_bg" style="background-image: url('/web/image/website.s_cover_default_image'); background-position: 50% 0;"></span>
+                    <div class="o_we_bg_filter bg-black-50"></div>
+                    <div class="container s_allow_columns">
+                        <h1 class="display-3" style="text-align: center; font-weight: bold;">Tiêu đề hấp dẫn</h1>
+                        <p class="lead" style="text-align: center;">Viết một hoặc hai đoạn mô tả sản phẩm, dịch vụ của bạn hoặc một tính năng cụ thể. Để thành công, nội dung của bạn cần phải hữu ích cho độc giả của bạn.</p>
+                        <p style="text-align: center;">
+                            <a class="btn btn-primary">Liên hệ</a>
+                        </p>
+                    </div>
+            </section>
+
+            <section class="s_searchbar o_colored_level o_cc o_cc2 pt48 pb48" data-snippet="s_searchbar" data-name="Tìm kiếm" style="background-image: none;">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8 offset-lg-2 o_colored_level o_draggable">
+                                <form method="get" data-snippet="" class="o_searchbar_form o_wait_lazy_js o_draggable" action="">
+                                    <div role="search" class="input-group ">
+                                        <input type="search" name="search" class="search-query form-control oe_search_box None" placeholder="Tìm kiếm..."/>
+                                        <button type="submit" aria-label="Tìm kiếm" title="Tìm kiếm" class="btn oe_search_button btn-primary">
+                                            <i class="oi oi-search" contenteditable="false"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+            </section>
+
+            <section class="s_media_list pt32 pb32 o_colored_level o_cc o_cc2" data-vcss="001" data-snippet="s_media_list" data-name="Loại kênh mạng xã hội" style="background-image: none;">
+                <div class="container">
+                    <div class="row s_nb_column_fixed s_col_no_bgcolor">
+                        <t t-foreach="books_data" t-as="data">
+                            <div class="col-lg-12 s_media_list_item pt16 pb16" data-name="Media item">
+                                <div class="row s_col_no_resize s_col_no_bgcolor g-0 o_colored_level o_cc o_cc1 align-items-center">
+                                    <div class="align-self-stretch s_media_list_img_wrapper col-lg-4">
+                                        <img src="/web/image/website.s_media_list_default_image_1" class="s_media_list_img h-100 w-100" alt="" loading="lazy" data-mimetype="image/jpeg" data-original-id="491" data-original-src="/website/static/src/img/snippets_demo/s_media_list_1.jpg" data-mimetype-before-conversion="image/jpeg"/>
+                                    </div>
+                                    <div class="s_media_list_body col-lg-8">
+                                        <h3><span t-esc="data['book'].name"/></h3>
+                                        <p>Sử dụng đoạn mã này để tạo các loại thành phần khác nhau làm nổi bật hình ảnh căn trái hoặc phải cùng với nội dung văn bản. Nhân đôi phần tử để tạo danh sách phù hợp với nhu cầu của bạn.</p>
+                                        <p> Số lượng bản sao sách : <span t-esc="data['copy_ids']"/></p>
+                                        <p> Số lượng bản sao sách đã được mượn : <span t-esc="data['borrowed_count']"/></p>
+                                        
+                                        <a href="#">Khám phá thêm <i class="fa fa-long-arrow-right align-middle ms-1" contenteditable="false"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </section>
+        </t>
+    </template>
+
+
+    <!-- list books data follow category-->
+
+    <template id="book_data_fl_category" name="Thư viện - Đầu sách theo doanh mục">
+        <t t-call="portal.portal_layout">
+
+            <section class="s_cover parallax s_parallax_is_fixed bg-black-50 pt96 pb96 o_colored_level" data-scroll-background-ratio="1" data-snippet="s_cover" data-name="Ảnh bìa" style="background-image: none;">
+                    <span class="s_parallax_bg oe_img_bg" style="background-image: url('/web/image/website.s_cover_default_image'); background-position: 50% 0;"></span>
+                    <div class="o_we_bg_filter bg-black-50"></div>
+                    <div class="container s_allow_columns">
+                        <h1 class="display-3" style="text-align: center; font-weight: bold;">Tiêu đề hấp dẫn</h1>
+                        <p class="lead" style="text-align: center;">Viết một hoặc hai đoạn mô tả sản phẩm, dịch vụ của bạn hoặc một tính năng cụ thể. Để thành công, nội dung của bạn cần phải hữu ích cho độc giả của bạn.</p>
+                        <p style="text-align: center;">
+                            <a class="btn btn-primary">Liên hệ</a>
+                        </p>
+                    </div>
+            </section>
+
+            <section class="s_searchbar o_colored_level o_cc o_cc2 pt48 pb48" data-snippet="s_searchbar" data-name="Tìm kiếm" style="background-image: none;">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8 offset-lg-2 o_colored_level o_draggable">
+                                <form method="get" data-snippet="" class="o_searchbar_form o_wait_lazy_js o_draggable" action="">
+                                    <div role="search" class="input-group ">
+                                        <input type="search" name="search" class="search-query form-control oe_search_box None" placeholder="Tìm kiếm..."/>
+                                        <button type="submit" aria-label="Tìm kiếm" title="Tìm kiếm" class="btn oe_search_button btn-primary">
+                                            <i class="oi oi-search" contenteditable="false"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+            </section>
+
+            <section class="s_media_list pt32 pb32 o_colored_level o_cc o_cc2" data-vcss="001" data-snippet="s_media_list" data-name="Loại kênh mạng xã hội" style="background-image: none;">
+                <div class="container">
+                    <div class="row s_nb_column_fixed s_col_no_bgcolor">
+                        <t t-foreach="books_data" t-as="data">
+                            <div class="col-lg-12 s_media_list_item pt16 pb16" data-name="Media item">
+                                <div class="row s_col_no_resize s_col_no_bgcolor g-0 o_colored_level o_cc o_cc1 align-items-center">
+                                    <div class="align-self-stretch s_media_list_img_wrapper col-lg-4">
+                                        <img src="/web/image/website.s_media_list_default_image_1" class="s_media_list_img h-100 w-100" alt="" loading="lazy" data-mimetype="image/jpeg" data-original-id="491" data-original-src="/website/static/src/img/snippets_demo/s_media_list_1.jpg" data-mimetype-before-conversion="image/jpeg"/>
+                                    </div>
+                                    <div class="s_media_list_body col-lg-8">
+                                        <h3><span t-esc="data['book'].name"/></h3>
+                                        <p>Sử dụng đoạn mã này để tạo các loại thành phần khác nhau làm nổi bật hình ảnh căn trái hoặc phải cùng với nội dung văn bản. Nhân đôi phần tử để tạo danh sách phù hợp với nhu cầu của bạn.</p>
+                                        <p> Số lượng bản sao sách : <span t-esc="data['copy_ids']"/></p>
+                                        <p> Số lượng bản sao sách đã được mượn : <span t-esc="data['borrowed_count']"/></p>
+                                        
+                                        <a href="#">Khám phá thêm <i class="fa fa-long-arrow-right align-middle ms-1" contenteditable="false"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </section>
+        </t>
+    </template>
+
 </odoo>
