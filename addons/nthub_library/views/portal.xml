@@ -4,13 +4,18 @@
         <xpath expr="//div[@class='o_portal_my_home']" position="inside">
             <t t-set="library_card" t-value="request.env['library.card'].sudo().search([('email', '=', request.env.user.email)], limit=1)"/>
             <t t-if="library_card">
-                <div class="alert alert-info mt-3">
-                    <strong>📚 Thông tin thẻ bạn đọc:</strong><br/>
-                    Mã thẻ: <t t-esc="library_card.code"/><br/>
-                    Họ tên: <t t-esc="library_card.name_borrower"/><br/>
-                    Ngày tạo: <t t-esc="library_card.start_borrow"/><br/>
-                    Ngày hết hạn: <t t-esc="library_card.end_borrow"/><br/>
-                    Trạng thái: <t t-esc="library_card.state"/>
+                <div class="o_portal_category row g-2 mt-3">
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="icon" t-value="'/nthub_library/static/description/library_card.png'"/>
+                        <t t-set="title">Thông tin thẻ bạn đọc:</t>
+                        <t t-set="text">Mã thẻ: <t t-esc="library_card.code"/><br/>
+                                        Họ tên: <t t-esc="library_card.name_borrower"/><br/>
+                                        Ngày tạo: <t t-esc="library_card.start_borrow"/><br/>
+                                        Ngày hết hạn: <t t-esc="library_card.end_borrow"/><br/>
+                                        Trạng thái: <t t-esc="library_card.state"/></t>
+                        <t t-set="url" t-value="'/my/library'"/>
+                        <t t-set="config_card" t-value="True"/>
+                    </t>
                 </div>
             </t>
             <t t-if="not library_card">
@@ -19,6 +24,14 @@
                 </div>
             </t>
         </xpath>
+        <!-- <xpath expr="//div[@id='portal_client_category']" position="replace">
+            <div id="portal_alert_category">
+            <t t-set="title">Thông báo mới:</t>
+            <t t-set="text">Bạn có thông báo mới trong hệ thống.</t>
+            <t t-set="icon" t-value="'/nthub_library/static/description/alert_icon.png'"/>
+            <t t-set="url" t-value="'/my/alerts'"/>
+            </div>
+        </xpath> -->
     </template>
 
 
