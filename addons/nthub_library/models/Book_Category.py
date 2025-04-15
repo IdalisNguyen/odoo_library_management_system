@@ -11,6 +11,7 @@ class Book_Category(models.Model):
     _description = 'books category'
 
     name = fields.Char(string="Category")
+    description = fields.Text(string="Description")
 
 
 class LibraryBookShelf(models.Model):

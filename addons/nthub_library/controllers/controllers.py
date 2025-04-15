@@ -15,14 +15,9 @@ class Borrows(CustomerPortal):
     @http.route('/my/home/borrows_list_details', type="http", auth='public', website=True)
     def get_borrows(self, **kw):
         library_card = request.env['library.card'].sudo().search([('email', '=', request.env.user.email)], limit=1)
-        print("library_card", library_card) 
-        print("library_card code code", library_card.code)
         borrows_list = []
         if library_card:
             borrows_list = request.env['books.borrows'].sudo().search([('code_id', '=', library_card.code)])
-        print("library_card email", request.env.user.email)
-        print("library_card", library_card.code)
-        print("borrows_list", borrows_list)
         return request.render('nthub_library.borrows_list_page', {'my_details': borrows_list}
                               , {'page_name': 'borrow_list'})
 
@@ -57,3 +52,46 @@ class Borrows(CustomerPortal):
                                        , {'page_name': 'borrowing_created'})
         return response
 
+
+
+class LibraryController(http.Controller):
+
+    @http.route('/category', type='http', auth='public', website=True)
+    def library_category(self, **kw):
+        categories = request.env['books.category'].sudo().search([])
+        return request.render('nthub_library.library_home_category', {
+            'categories': categories,
+        })
+        
+        
+    @http.route('/books-data', type='http', auth='public', website=True)
+    def library_book_data(self, **kw):
+        books_data = request.env['books.data'].sudo().search([])
+        books_with_borrowed_count = []
+        for book in books_data:
+            copy_ids = request.env['book.copies'].sudo().search_count([('book_id', '=', book.id)])
+            borrowed_count = request.env['book.copies'].sudo().search_count([('state', '=', 'borrowed'), ('book_id', '=', book.id)])
+            books_with_borrowed_count.append({
+                'book': book,
+                'copy_ids': copy_ids,
+                'borrowed_count': borrowed_count
+            })
+        return request.render('nthub_library.library_books_data', {
+            'books_data': books_with_borrowed_count
+        })
+        
+    @http.route(['/category=<int:category_id>/book'], type="http", website=True, auth='public')
+    def get_book_data_by_category(self, category_id, **kw):
+        books = request.env['books.data'].sudo().search([('category_ids', '=', category_id)])
+        books_with_borrowed_count = []
+        for book in books:
+            copy_ids = request.env['book.copies'].sudo().search_count([('book_id', '=', book.id)])
+            borrowed_count = request.env['book.copies'].sudo().search_count([('state', '=', 'borrowed'), ('book_id', '=', book.id)])
+            books_with_borrowed_count.append({
+                'book': book,
+                'copy_ids': copy_ids,
+                'borrowed_count': borrowed_count
+            })
+        return request.render('nthub_library.book_data_fl_category', {
+            'books_data': books_with_borrowed_count
+        })
