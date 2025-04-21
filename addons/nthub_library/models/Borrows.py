@@ -34,10 +34,11 @@ class Borrows(models.Model):
 
 
     start_borrow = fields.Datetime(string="Ngày Mượn", default=lambda self: fields.Datetime.now())
-    state = fields.Selection([('draft', 'Draft'),
-                              ('running', 'Running'),
-                              ('delayed', 'Delayed'),
-                              ('ended', 'Ended'),
+    state = fields.Selection([('draft', 'NHÁP'),
+                              ('running', 'ĐANG TIẾN HÀNH'),
+                              ('delayed', 'TRỄ'),
+                              ('ended', 'KẾT THÚC'),
+                              ('reserve','ĐẶT TRƯỚC')
                               ], default="draft", string='state')
     end_borrow = fields.Datetime(string="Ngày Trả", store=True,
                                  compute='_compute_end_borrow')
@@ -57,7 +58,8 @@ class Borrows(models.Model):
     borrow_id = fields.Char(string='Mã Mượn', compute='_default_borrow_id', store=True)
     return_date = fields.Date(string='Ngày Hoàn Trả')
 
-
+    reserve_date = fields.Datetime(string="Ngày Đặt Trước")
+    cancel_reserve = fields.Datetime(string="Ngày Hủy Đặt Trước")
     # search borrower
     @api.model
     def process_qr_scan(self):
@@ -127,20 +129,24 @@ class Borrows(models.Model):
             # Set a placeholder or temporary value for borrow_id when complete data isn't available.
             self.borrow_id = 'Incomplete_Info'
          
-    # kiểm tra trong danh sách mượn có sách thì trạng thái borrow thành running
-    @api.constrains('book_copy_list_ids')
-    def _check_book_copy_list_ids(self):
-        if self.book_copy_list_ids:
-            if len(self.book_copy_list_ids) > self.code_id.book_limit:
+
+    @api.model
+    def write(self, vals):
+        if 'book_copy_list_ids' in vals:
+            res = super(Borrows, self).write(vals)
+            new_books = self.book_copy_list_ids.ids
+            print("new_books", new_books)
+            if len(new_books) > self.code_id.book_limit:
                 raise UserError(f'Số sách mượn vượt quá giới hạn cho phép ({self.code_id.book_limit}).')
-            self.state = 'running'
             for book in self.book_copy_list_ids:
-                book.state = 'borrowed'
-            num = len(self.book_copy_list_ids)
-            self.code_id.book_limit -= num
-        else:
-            self.state = 'ended'
-    # in báo cáo mượn sách
+                if book.state == 'available':
+                    book.state = 'borrowed'
+                    self.code_id.book_limit -= 1
+                    print("book limit", self.code_id.book_limit)
+            if self.book_copy_list_ids:
+                self.state = 'running'
+            return res
+        return super(Borrows, self).write(vals)
     def action_report(self):
         # function to report wornning
         return self.env.ref('nthub_library.report_borrows_warning_id').report_action(self)
@@ -155,10 +161,12 @@ class Borrows(models.Model):
             
     # chuyển trạng thái về kết thúc
     def action_ended(self):
+        current_books = set(self.book_copy_list_ids.ids)
+        print("current_books", current_books)
         for record in self:
             for book in record.book_copy_list_ids:
                 book.state = 'available'
-            record.code_id.book_limit += len(self.book_copy_list_ids)
+            record.code_id.book_limit += len(current_books)
             record.book_copy_list_ids = [(5, 0, 0)]  # Clear all books from the record
             record.state = 'ended'
             record.return_date = fields.Date.today()
@@ -232,53 +240,71 @@ class Borrows(models.Model):
 
 
     def action_scan_qr_book_copies(self, vals):
-        """ Quét mã QR sách mượn bằng zbarcam (thay cv2) """
+        """Quét nhiều mã QR sách mượn bằng zbarcam"""
         if not self.code_id:
             raise UserError('Xác định thẻ bạn đọc trước khi thêm sách mượn.')
-
         try:
-            # Mở camera và bắt đầu quét mã
             process = subprocess.Popen(['zbarcam', '--raw'], stdout=subprocess.PIPE)
-            print("🎥 Đang mở camera để quét mã sách...")
-
+            print("🎥 Đang mở camera để quét mã sách (nhấn Ctrl+C để dừng)...")
             for line in iter(process.stdout.readline, b''):
                 barcode_data = line.decode('utf-8').strip()
                 print(f'📦 Mã Barcode đã quét: {barcode_data}')
-
                 match = re.search(r'(\d+)', barcode_data)
                 if not match:
+                    print("❌ Không nhận dạng được mã số.")
                     continue
 
                 barcode_book_copies = int(match.group(1))
                 print(f'🎯 DKCB: {barcode_book_copies}')
+                book_copies = self.env['book.copies'].search([('DK_CB', '=', barcode_book_copies)], limit=2)
 
-                # Tìm bản sao sách
-                book_copies = self.env['book.copies'].search([('DK_CB', '=', barcode_book_copies)], limit=1)
+                if len(book_copies) > 1:
+                    raise UserError(f'⚠️ Có nhiều bản sao sách với mã {barcode_book_copies}.')
+                elif not book_copies:
+                    raise UserError('❌ Không tìm thấy bản sao sách trong hệ thống.')
 
-                if book_copies:
-                    if book_copies in self.book_copy_list_ids:
-                        raise UserError(f'Sách {book_copies.book_id.name} - {book_copies.DK_CB} đã có trong danh sách mượn.')
+                book_copy = book_copies[0]
+                print("book_copy", book_copy)
+                if book_copy in self.book_copy_list_ids:
+                    process.terminate()
+                    raise UserError(f'⚠️ Sách {book_copy.book_id.name} - {book_copy.DK_CB} đã có trong danh sách mượn.')
+                if book_copy.state == 'borrowed':
+                    process.terminate()
+                    raise UserError(f'⛔ Sách {book_copy.book_id.name} - {book_copy.DK_CB} đang được mượn.')
+                if book_copy.state == 'reserve':
+                    process.terminate()
+                    raise UserError(f'⛔ Sách {book_copy.book_id.name} - {book_copy.DK_CB} đang được đặt trước.')
 
-                    if book_copies.state == 'borrowed':
-                        process.terminate()
-                        raise UserError(f'Sách {book_copies.book_id.name} - {book_copies.DK_CB} đang được mượn.')
-
-                    # Thêm sách vào danh sách mượn
-                    self.book_copy_list_ids = [(4, book_copies.id)]
-                    print(f'✅ Đã thêm sách: {book_copies.book_id.name} - {book_copies.DK_CB}')
-                else:
-                    print('❌ Không tìm thấy bản sao sách trong hệ thống.')
-                    continue
-
+                self.book_copy_list_ids = [(4, book_copy.id)]
+                # self.book_copy_list_ids += [(4, book_copy.id)]
+                # self.write({'book_copy_list_ids': [(4, book_copy.id)]})
                 process.terminate()
-                return  # Sau khi quét 1 sách thì dừng (hoặc bạn có thể lặp nếu muốn scan nhiều lần)
+                print(f'✅ Đã thêm sách: {book_copy.book_id.name} - {book_copy.DK_CB}')
         except FileNotFoundError:
             raise UserError("Không tìm thấy `zbarcam`. Cài đặt bằng: sudo apt install zbar-tools")
+        except KeyboardInterrupt:
+            print("\n🛑 Dừng quét mã sách.")
+            process.terminate()
         except Exception as e:
+            process.terminate()
             raise UserError(f"Lỗi khi quét mã sách: {e}")
 
 
+    def action_reserve(self):
+        self.state = 'reserve'
+        for book in self.book_copy_list_ids:
+            book.state = 'reserve'
 
+    def action_change_reserve_to_borrow(self):
+        for record in self:
+            if record.state == 'reserve':
+                record.state = 'running'
+                for book in record.book_copy_list_ids:
+                    book.state = 'borrowed'
+                record.code_id.book_limit -= len(record.book_copy_list_ids)
+                record.start_borrow = fields.Datetime.now()
+                print("Reserve records have been changed to borrow.")
+        return True
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 

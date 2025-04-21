@@ -25,12 +25,13 @@
     <field name="arch" type="xml">
         <form>
             <header>
-                <button name="action_report" string="Print Report" type="object" class="oe_highlight" groups="nthub_library.library_group_manger"/>
-                <button name="action_draft" invisible = "state == 'draft' or state == 'running'" string="Reset to Draft" type="object" class="oe_highlight" groups="nthub_library.library_group_manger"/>
-                <button name="action_ended" string="End Borrow" invisible = "state == 'ended' or state == 'draft'" groups="nthub_library.library_group_manger" class="oe_highlight" type="object"/>
-                <button string="Scan BarCode name student" class="oe_highlight" type="object" name="action_barcode_name_student" args="[{'vals':vals}]" />
-
-                <field name="state" widget="statusbar" nolabel="1" statusbar_visible="draft,running,delayed,ended"/>
+                <!-- <button name="action_report" string="Print Report" type="object" class="oe_highlight" groups="nthub_library.library_group_manger"/> -->
+                <button name="action_draft" invisible = "state == 'draft' or state == 'running' or state == 'reserve'" string="CHUYỂN VỀ NHÁP" type="object" class="oe_highlight" groups="nthub_library.library_group_manger"/>
+                <button name="action_ended" string="KẾT THÚC" invisible = "state == 'ended' or state == 'draft'" groups="nthub_library.library_group_manger" class="oe_highlight" type="object"/>
+                <button string="QUÉT MÃ SINH VIÊN" invisible="state != 'draft'" class="oe_highlight" type="object" name="action_barcode_name_student" args="[{'vals':vals}]" />
+                <button name="action_reserve" string="ĐẶT LỊCH" type="object" invisible="state != 'draft'" class="oe_highlight"/>
+                <button name="action_change_reserve_to_borrow" string="CHUYỂN TRẠNG THÁI" type="object" invisible="state != 'reserve'" class="oe_highlight"/>
+                <field name="state" widget="statusbar" nolabel="1" statusbar_visible="draft,running,delayed,reserve,ended"/>
             </header>
             <sheet>
                 <group>
@@ -40,7 +41,7 @@
                         <field name="id_student" />
                         <field name="borrow_id" default="create_uid"/>
                     </group>
-                    <group>
+                    <group invisible ="state == 'reserve'">
                         <field name="start_borrow"/>
                         <field name="end_borrow"/>
                         <field name="borrows_duration"/>
@@ -48,7 +49,9 @@
                         <field name="delay_penalties_id"/>
                         <field name="delay_duration"/>
                     </group>
-                    <group>
+                    <group string="Đặt trước" invisible="state != 'reserve'">
+                        <field name="reserve_date"/>
+                        <field name="cancel_reserve"/>
                     </group>
                     <group >
 
@@ -98,8 +101,8 @@
             <field name="arch" type="xml">
                 <search>
 
-                    <filter name="type_return" string="Trả sách"
-                            domain="[('state','in',['running','delayed'])]"/>
+                    <filter name="type_reserve" string="Hẹn Mượn sách"
+                            domain="[('state','=','reserve')]"/>
 
                     <filter name="type_borrow" string="Mượn sách"
                             domain="[('state','=','draft'),('state','=','ended')]"/>
@@ -176,15 +179,15 @@
             <field name="view_mode">tree,form,calendar,pivot,graph,kanban</field>
 
         </record>
-        <record model="ir.actions.act_window" id="action_returned">
+        <record model="ir.actions.act_window" id="action_reserve">
             <field name="name">Trả sách</field>
             <field name="res_model">books.borrows</field>
             <field name="view_mode">tree,form,calendar,pivot,graph,kanban</field>
-            <field name="domain">[('state', 'in', ['running', 'delayed'])]</field>
+            <field name="domain">[('state', 'in', ['running', 'reserve'])]</field>
 			<field name="context">
 				{
-					'search_default_type_return': 1,
-                    'action_name': 'action_returned'
+					'search_default_type_reserve': 1,
+                    'action_name': 'action_reserve'
 
 				}
 			</field>

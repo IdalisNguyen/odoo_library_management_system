@@ -5,6 +5,9 @@
             <field name="model">book.copies</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <field name="state" widget="statusbar" nolabel="1" statusbar_visible="lost,borrowed,available,reserve"/>
+                    </header>
                     <sheet>
                         <group>
                             <group>
@@ -13,7 +16,6 @@
                                 <field name="DK_CB"/>
                             </group>
                             <group>
-                                <field name="state"/>
                                 <field name="library_shelf_id"/>
                                 <field name="library_rack_id"/>
                             </group>

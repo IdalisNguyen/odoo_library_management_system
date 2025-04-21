@@ -63,7 +63,7 @@
                     <group>
                       <field name="available_shelf_ids" invisible="1"/>
                         <field name="rack" />
-                      <field name="library_shelf_id" string="Kệ Sách" invisible="rack == False" domain="[('id', 'in', available_shelf_ids)]"/>
+                        <field name="library_shelf_id" string="Kệ Sách" invisible="rack == False" domain="[('id', 'in', available_shelf_ids)]"/>
                     </group>
                   </group>
 
@@ -73,6 +73,8 @@
                       <field name="code_rack"/>
                       <field name="active_rack"/>
                       <field name="library_shelf_ids" widget="many2many_tags"/>
+                      <field name="library_shelf_id" string="Kệ Sách" invisible="library_shelf_ids == False" domain="[('id', 'in', available_shelf_ids)]"/>
+
                     </group>
 
 

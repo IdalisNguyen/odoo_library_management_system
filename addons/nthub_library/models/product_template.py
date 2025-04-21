@@ -49,21 +49,6 @@ class ProductTemplate(models.Model):
                                   'shelf_id', 'product_id', string="Shelf") 
 
 
-
-    
-    
-    @api.onchange('select_rack')
-    def _onchange_select_rack(self):
-        if self.select_rack == 'new':
-            self.rack = False
-            self.env['library.rack'].create({
-                'name_category_id': self.category_ids,
-                'name': self.name_rack,
-                'code': self.code_rack,
-                'active': self.active_rack,
-                'library_shelf_ids': [(6, 0, self.library_shelf_ids.ids)]
-            })      
-
     @api.constrains('select_rack', 'rack')
     def _check_rack_required(self):
         for record in self:
@@ -91,24 +76,33 @@ class ProductTemplate(models.Model):
             ])
             record.stock_quantity = sum(moves.mapped('quantity'))
 
-    @api.depends('rack')
+    @api.depends('rack','name_rack')
     def _compute_available_shelves(self):
         for record in self:
             if record.rack:
                 record.available_shelf_ids = record.rack.library_shelf_ids
+            if record.name_rack:
+                record.available_shelf_ids = self.env['library.shelf'].search([
+                    ('rack_id.name', '=', record.name_rack)
+                ])
             else:
                 record.available_shelf_ids = self.env['library.shelf'].search([])   
+
                 
     @api.constrains("library_shelf_ids")
     def check_shelf(self):
-        if self.env['library.rack'].search([
-            ('library_shelf_ids','in',self.library_shelf_ids.ids)
-        ]):
-            raise UserError("""Kệ thư viện đã được phân bổ cho một cấp bậc khác!!""")
-        else:
-            self.env['library.rack'].create({
-                'name' : self.name_rack,
-                'code': self.code_rack,
-                'active': self.active_rack,
-                'library_shelf_ids': [(6, 0, self.library_shelf_ids.ids)]
-            })
+        if self.select_rack == 'new':
+            if self.env['library.rack'].search([
+                ('library_shelf_ids','in',self.library_shelf_ids.ids)
+            ]):
+                raise UserError("""Kệ thư viện đã được phân bổ cho một cấp bậc khác!!""")
+            else:
+                self.env['library.rack'].create({
+                    'name_category_id': self.category_ids.id,
+                    'name' : self.name_rack,
+                    'code': self.code_rack,
+                    'active': self.active_rack,
+                    'library_shelf_ids': [(6, 0, self.library_shelf_ids.ids)]
+                })
+        else:  
+            raise UserError("Không phải lựa chọn tạo mới giá sách!!!")

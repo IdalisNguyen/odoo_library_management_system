@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
+from datetime import timedelta, datetime, date
 from odoo import models, fields, api
 import random
 from odoo.tools.float_utils import float_is_zero
@@ -31,9 +31,10 @@ class bookcopies(models.Model):
     serial_number = fields.Char(string='Serial Number', unique=True)  # Số đăng ký cá biệt
     DK_CB = fields.Char(String="Số Đăng Ký Cá Biệt")
 
-    state = fields.Selection([('lost', 'Mất'),
-                              ('borrowed', 'Đã Mượn'),
-                              ('available', 'Có Sẵn'),
+    state = fields.Selection([('lost', 'MẤT'),
+                              ('borrowed', 'ĐÃ MƯỢN'),
+                              ('available', 'CÓ SẴN'),
+                              ('reserve','ĐẶT TRƯỚC'),
                               ], default="available", string='Trạng Thái')
 
     start_date = fields.Datetime(default=fields.Datetime.today)
@@ -64,9 +65,17 @@ class bookcopies(models.Model):
 
             r.duration = (r.end_date - r.start_date).days + 1
 
-
-
-
+    @api.model
+    def update_state_book(self):
+        today = date.today()
+        book_reserve = self.env['books.borrows'].search([('state', '=', 'reserve'), ('reserve_date', '<', today)])
+        print("book_reserve",book_reserve)
+        for rec in book_reserve:
+            if rec:
+                rec.state = 'delayed'
+                rec.book_copy_list_ids.state = 'available'      
+                
+            
     @api.onchange('book_id')
     def _onchange_book_id(self):
 
@@ -111,6 +120,7 @@ class PurchaseOrder(models.Model):
                         'vergion': line.product_id.vergion,
                         'author_ids': line.product_id.author_ids.ids,
                         'number_of_pages': line.product_id.number_of_pages,
+                        'image': line.product_id.image_1920,
                     }
                     if line.product_id.select_rack != 'new':
                         book_data['rack_ids'] = line.product_id.rack.id
@@ -118,7 +128,7 @@ class PurchaseOrder(models.Model):
                     else:
                         rack = self.env['library.rack'].search([['code', '=', line.product_id.code_rack]], limit=1)
                         book_data['rack_ids'] = rack.id
-                        book_data['shelf_ids'] = line.product_id.library_shelf_ids.id
+                        book_data['shelf_ids'] = line.product_id.library_shelf_id.id
                     
                     if book:
                         book.write(book_data)
@@ -128,15 +138,16 @@ class PurchaseOrder(models.Model):
                     dk_cb_list = []
                     for i in range(int(line.product_qty)):  # Lặp theo số lượng sách
                         DK_CB = self.generate_serial_number_by_category(book.category_ids.id, book_data['rack_ids'], book_data['shelf_ids'])
-                        print("book_category",book.category_ids.id)
-                        print("book_rack",book_data['rack_ids'])
-                        print("book_shelf",book_data['shelf_ids'])
-                        
                         book_copy = self.env['book.copies'].create({
                             'book_id': book.id,
                             'DK_CB': DK_CB,
                             'library_shelf_id': book_data['shelf_ids'],
+                            'library_rack_id': book_data['rack_ids'],
                         })
+                        print("book_category",book.category_ids.id)
+                        print("book_rack",book_data['rack_ids'])
+                        print("book_shelf",book_data['shelf_ids'])
+                        print("DK_CB",DK_CB)
                         dk_cb_list.append(book_copy.id)
                     
                     # Lưu DK_CB vào order line
@@ -152,7 +163,7 @@ class PurchaseOrder(models.Model):
         existing_serials = self.env['book.copies'].search([
             ('book_id.category_ids', '=', category_id),
             ('library_shelf_id', '=', shelf_id),
-            ('library_rack_id', '=', rack_id)
+            ('book_id.rack_ids', '=', rack_id)
         ]).mapped('DK_CB')
         print("existing_serials",existing_serials)
         if existing_serials:
