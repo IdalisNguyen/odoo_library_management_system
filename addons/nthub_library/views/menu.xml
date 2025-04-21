@@ -12,7 +12,7 @@
 
         <menuitem name="Mượn/Trả" id="menu_2_borrow" sequence="3" groups="nthub_library.library_group_librarian,nthub_library.library_group_board_of_directors">
             <menuitem name="Mượn Sách" id="menu_1_borrow"  action="action_borrowed" sequence="1"/>
-            <menuitem name="Trả Sách" id="menu_1_"  action="action_returned" sequence="2"/>
+            <menuitem name="Đặt Hẹn Mượn Sách" id="menu_1_"  action="action_reserve" sequence="2"/>
         </menuitem>
         <menuitem id="library_configration" action="library_conf" name="Báo Cáo Phản Hồi" sequence="4"/>
 
