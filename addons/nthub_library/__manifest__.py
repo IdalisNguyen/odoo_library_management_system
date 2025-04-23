@@ -13,7 +13,7 @@
     'price': 0.0,
     'currency': 'D',
     'website': "",
-    'depends': ['base', 'website', 'board', 'mail','contacts','purchase','stock','mail','portal','web'],
+    'depends': ['base', 'website', 'board', 'mail','contacts','purchase','stock','mail','portal','web','project'],
 
     'data': [
         'security/security.xml',
@@ -38,12 +38,15 @@
         'views/portal.xml',
         'report/button_book_copy_labels.xml',
         'report/library_labels_report.xml',
-        'views/product_template.xml'
+        'views/product_template.xml',
+        'views/project_task.xml'
     ],
     'assets': {
         'web.assets_backend': [
             'nthub_library/static/src/js/button_return.js',
-            'nthub_library/static/src/xml/button_return.xml'
+            'nthub_library/static/src/js/button_check_reserve.js',
+            'nthub_library/static/src/xml/button_return.xml',
+            'nthub_library/static/src/xml/button_check_reserve.xml',
         ],
     },
 

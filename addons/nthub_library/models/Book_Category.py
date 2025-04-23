@@ -22,7 +22,7 @@ class LibraryBookShelf(models.Model):
 
     name = fields.Char(string="Tên kệ sách")
 
-    default_quantity = fields.Integer(string="Số lượng mặc định", default=10)
+    default_quantity = fields.Integer(string="Số lượng mặc định", default=80)
     quantity = fields.Integer(string="Số lượng Sách đã nhập", store=True, readonly=True, compute="_compute_quantity_book_in_shelf")
     book_copies_ids = fields.One2many('book.copies','library_shelf_id',string = "Sach luu tru ")
 
@@ -72,4 +72,11 @@ class LibraryRack(models.Model):
             raise UserError("""Kệ thư viện đã được phân bổ cho một cấp bậc khác!!""")
         for shelf in self.library_shelf_ids:
             shelf.rack_id = self
+    
+    @api.constrains("code")
+    def check_code(self):
+        for record in self:
+            code_old = self.env['library.rack'].search([('code', '=', record.code), ('id', '!=', record.id)])
+            if code_old:
+                raise UserError("Code đã được sử dụng ở giá khác, hãy điền lại")
         

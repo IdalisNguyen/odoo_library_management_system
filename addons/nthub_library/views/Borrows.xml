@@ -100,7 +100,7 @@
             <field name="model">books.borrows</field>
             <field name="arch" type="xml">
                 <search>
-
+                    <field name="borrow_id"/>
                     <filter name="type_reserve" string="Hẹn Mượn sách"
                             domain="[('state','=','reserve')]"/>
 
@@ -173,6 +173,19 @@
                 </kanban>
             </field>
         </record>
+
+    <record id="view_reserve_tree_with_onboarding" model="ir.ui.view">
+        <field name="name">books.borrows.tree.inherit</field>
+        <field name="model">books.borrows</field>
+        <field name="inherit_id" ref="view_borrows_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="js_class">button_check_reserve_in_tree</attribute>
+            </xpath>
+        </field>
+    </record>
+
+
         <record model="ir.actions.act_window" id="action_borrowed">
             <field name="name">Mượn sách</field>
             <field name="res_model">books.borrows</field>

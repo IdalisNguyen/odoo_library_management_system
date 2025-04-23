@@ -91,16 +91,16 @@
             </tree>
         </field>
     </record>
-        <record id="view_quotation_tree_with_onboarding" model="ir.ui.view">
+    <record id="view_quotation_tree_with_onboarding" model="ir.ui.view">
         <field name="name">library.card.tree.inherit</field>
         <field name="model">library.card</field>
         <field name="inherit_id" ref="library_card_tree_view"/>
         <field name="arch" type="xml">
-           <xpath expr="//tree" position="attributes">
-               <attribute name="js_class">button_in_tree</attribute>
-           </xpath>
+            <xpath expr="//tree" position="attributes">
+                <attribute name="js_class">button_in_tree</attribute>
+            </xpath>
         </field>
-        </record>
+    </record>
 
     <!-- Search View Of Library Card Details -->
     <record id="product_card_search_view" model="ir.ui.view">
