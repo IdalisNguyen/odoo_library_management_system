@@ -42,13 +42,17 @@
             <section class="s_banner pt96 pb96 o_colored_level" data-snippet="s_banner" data-name="Banner" style="background-image: none;">
                 <div class="container">
                     <div class="row s_nb_column_fixed o_grid_mode" data-row-count="15">
-                        
-                        
-                        
-                        
+
+
+
+
                     <div class="justify-content-center o_grid_item g-height-8 g-col-lg-5 col-lg-5 o_colored_level o_draggable" data-name="Box" style="z-index: 1; grid-area: 3 / 8 / 11 / 13;">
-                            <h1 class="display-3 o_default_snippet_text">Bán hàng online. <strong class="o_default_snippet_text">Thật dễ dàng.</strong></h1>
-                            <p class="lead o_default_snippet_text">Đây đơn giản là một mục hết sức hiệu quả, là thành phần kiểu màn hình lớn giúp thu hút sự chú ý đối với nội dung và thông tin nổi bật.</p>
+                            <h1 class="display-3 o_default_snippet_text">
+                                Thư viện số. <strong class="o_default_snippet_text">Dễ tiếp cận. Linh hoạt.</strong>
+                            </h1>
+                            <p class="lead o_default_snippet_text">
+                                Truy cập kho tài liệu học thuật mọi lúc, mọi nơi. Hỗ trợ sinh viên và giảng viên tiếp cận tri thức dễ dàng hơn bao giờ hết.
+                            </p>
                             <div class="s_hr text-start pb32 pt4" data-snippet="s_hr" data-name="Separator">
                                 <hr class="w-100 mx-auto" contenteditable="false"/>
                             </div>
@@ -56,11 +60,11 @@
                                 <a class="btn btn-lg btn-primary o_default_snippet_text" href="/contactus">Bắt đầu ngay <span class="fa fa-angle-right ms-2" contenteditable="false">​</span>﻿</a>﻿
                             </p>
                         </div><div class="o_grid_item o_grid_item_image g-col-lg-3 g-height-5 col-lg-3 d-lg-block d-none o_snippet_mobile_invisible o_colored_level" style="z-index: 4; grid-area: 11 / 4 / 16 / 7;" data-invisible="1">
-                            <img class="img img-fluid mx-auto shadow rounded" src="/web/image/website.s_banner_default_image" alt="" loading="lazy" data-mimetype="image/jpeg" data-original-id="515" data-original-src="/website/static/src/img/snippets_demo/s_banner.jpg" data-mimetype-before-conversion="image/jpeg"/>
+                            <img class="img img-fluid mx-auto shadow rounded" src="/nthub_library/static/description/home3.jpeg" alt="" loading="lazy" data-mimetype="image/jpeg" data-original-id="515" data-original-src="/website/static/src/img/snippets_demo/s_banner.jpg" data-mimetype-before-conversion="image/jpeg"/>
                         </div><div class="o_grid_item o_grid_item_image g-col-lg-2 g-height-5 col-lg-2 d-lg-block d-none o_snippet_mobile_invisible o_colored_level" style="z-index: 3; grid-area: 1 / 1 / 6 / 3;" data-invisible="1">
-                            <img class="img img-fluid mx-auto shadow rounded" src="/web/image/website.s_banner_default_image_3" alt="" loading="lazy" data-mimetype="image/jpeg" data-original-id="517" data-original-src="/website/static/src/img/snippets_demo/s_banner_3.jpg" data-mimetype-before-conversion="image/jpeg"/>
+                            <img class="img img-fluid mx-auto shadow rounded" src="/nthub_library/static/description/home2.jpg" alt="" loading="lazy" data-mimetype="image/jpeg" data-original-id="517" data-original-src="/website/static/src/img/snippets_demo/s_banner_3.jpg" data-mimetype-before-conversion="image/jpeg"/>
                         </div><div class="o_grid_item o_grid_item_image g-col-lg-4 g-height-10 col-lg-4 o_colored_level o_draggable" style="z-index: 2; grid-area: 2 / 2 / 12 / 6;">
-                            <img class="img img-fluid mx-auto shadow rounded" src="/web/image/website.s_banner_default_image_2" alt="" loading="lazy" data-mimetype="image/jpeg" data-original-id="516" data-original-src="/website/static/src/img/snippets_demo/s_banner_2.jpg" data-mimetype-before-conversion="image/jpeg"/>
+                            <img class="img img-fluid mx-auto shadow rounded" src="/nthub_library/static/description/home1.jpg" alt="" loading="lazy" data-mimetype="image/jpeg" data-original-id="516" data-original-src="/website/static/src/img/snippets_demo/s_banner_2.jpg" data-mimetype-before-conversion="image/jpeg"/>
                         </div></div>
                 </div>
             </section>
@@ -131,13 +135,13 @@
 
             <section class="s_carousel_wrapper" data-vxml="001" data-snippet="s_carousel" data-name="Băng chuyền">
                 <div class="s_carousel s_carousel_default carousel slide" data-bs-interval="10000" id="myCarousel1745224290802" style="background-image: none;">
-                    
+
                     <ol class="carousel-indicators o_we_no_overlay">
                         <li data-bs-target="#myCarousel1745224290802" data-bs-slide-to="0" class=""></li>
                         <li data-bs-target="#myCarousel1745224290802" data-bs-slide-to="1" class="active" aria-current="true"></li>
                         <li data-bs-target="#myCarousel1745224290802" data-bs-slide-to="2" class=""></li>
                     </ol>
-                    
+
                     <div class="carousel-inner">
                         <div class="carousel-item pt152 pb152 o_colored_level oe_img_bg o_bg_img_center" style="background-image: url('/nthub_library/static/description/slide1.jpg'); min-height: 521.8px;" data-name="Slide">
                         <!-- <div class="carousel-item pt152 pb152 o_colored_level oe_img_bg o_bg_img_center" style="background-image: url(&quot;/web/image/website.s_carousel_default_image_1&quot;); min-height: 521.8px;" data-name="Slide"> -->
@@ -153,7 +157,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="carousel-item pt96 pb96 o_colored_level oe_img_bg o_bg_img_center active" style="background-image: url('/nthub_library/static/description/slide2.jpg'); min-height: 521.8px;" data-name="Slide">
                             <div class="container oe_unremovable">
                                 <div class="row">
@@ -168,7 +172,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="carousel-item pt128 pb128 o_colored_level oe_img_bg o_bg_img_center" style="background-image: url('/nthub_library/static/description/slide3.jpg'); min-height: 521.8px;" data-name="Slide">
                             <div class="container oe_unremovable">
                                 <div class="row">
@@ -182,7 +186,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <a class="carousel-control-prev o_not_editable o_we_no_overlay" role="img" aria-label="Trước đó" title="Trước đó" href="#myCarousel1745224290802" data-bs-slide="prev">
                         <span class="carousel-control-prev-icon"></span>
                         <span class="visually-hidden o_default_snippet_text">Trước</span>
@@ -298,14 +302,13 @@
                                             <table class="table-striped table">
                                                 <thead>
                                                     <tr>
-                                                        <th>Tên Bạn đọc</th>
+                                                        <th>Tên Bạn Đọc</th>
                                                         <th>Tên Sách</th>
                                                         <th>Ngày Mượn</th>
-                                                        <th>Email bạn đọc</th>
+                                                        <th>Email Bạn Đọc</th>
                                                         <th>Trạng Thái</th>
-                                                        <th>Ngày Trả</th>
-                                                        <th>Thời hạn mượn / (Tháng)</th>
-                                                        <th>Phạt</th>
+                                                        <th>Hạn Đăng Ký Mượn</th>
+                                                        <th>Mã Đặt Mượn</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -329,18 +332,40 @@
                                                                 <span t-esc="order.state"/>
                                                             </td>
                                                             <td>
-                                                                <span t-esc="order.end_borrow"/>
+                                                                <span t-esc="order.cancel_reserve"/>
+
                                                             </td>
                                                             <td>
-                                                                <span t-esc="order.borrows_duration"/>
+                                                                <button type="button" class="btn btn-primary" t-on-click="onClickBarcode" data-bs-toggle="modal" data-bs-target="#barcodeModal">
+                                                                    <span t-esc="order.borrow_id"/>
+                                                                </button>
                                                             </td>
-                                                            <td>
-                                                                <span t-esc="order.delay_duration"/>
-                                                            </td>
+
+                                                            <!-- Modal -->
+                                                            <div class="modal fade" id="barcodeModal" tabindex="-1" aria-labelledby="barcodeModalLabel" aria-hidden="true">
+                                                                <div class="modal-dialog">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title" id="barcodeModalLabel">Mã Barcode</h5>
+                                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            <p>Mã phiếu mượn: <span t-esc="order.borrow_id"/></p>
+                                                                            <div>
+                                                                                <img t-att-src="'/report/barcode/?barcode_type=Code128&amp;value=' + str(order.borrow_id)" 
+                                                                                    alt="Barcode" width="265" height="80"/>                                                                                <!-- <img t-att-src="'/report/barcode/?barcode_type=Code128;value=' + str(order.borrow_id)" alt="Barcode"/> -->
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </tr>
                                                     </t>
                                                 </tbody>
-                                            </table>                                        
+                                            </table>
                                         </div>
                                     </section>
                                 </div>
@@ -403,6 +428,7 @@
                     </div>
                 </div>
             </section>
+
         </t>
     </template>
 
@@ -432,7 +458,7 @@
             </div>
         </t>
     </template>
-    
+
     <template id="borrower_detail_form_shown_link" inherit_id="portal.portal_sidebar">
         <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
             <section style="background-color:#eee;">
@@ -503,13 +529,13 @@
 
             <section class="s_carousel_wrapper" data-vxml="001" data-snippet="s_carousel" data-name="Băng chuyền">
                 <div class="s_carousel s_carousel_default carousel slide" data-bs-interval="10000" id="myCarousel1745224290802" style="background-image: none;">
-                    
+
                     <ol class="carousel-indicators o_we_no_overlay">
                         <li data-bs-target="#myCarousel1745224290802" data-bs-slide-to="0" class=""></li>
                         <li data-bs-target="#myCarousel1745224290802" data-bs-slide-to="1" class="active" aria-current="true"></li>
                         <li data-bs-target="#myCarousel1745224290802" data-bs-slide-to="2" class=""></li>
                     </ol>
-                    
+
                     <div class="carousel-inner">
                         <div class="carousel-item pt152 pb152 o_colored_level oe_img_bg o_bg_img_center" style="background-image: url('/nthub_library/static/description/slide1.jpg'); min-height: 521.8px;" data-name="Slide">
                         <!-- <div class="carousel-item pt152 pb152 o_colored_level oe_img_bg o_bg_img_center" style="background-image: url(&quot;/web/image/website.s_carousel_default_image_1&quot;); min-height: 521.8px;" data-name="Slide"> -->
@@ -525,7 +551,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="carousel-item pt96 pb96 o_colored_level oe_img_bg o_bg_img_center active" style="background-image: url('/nthub_library/static/description/slide2.jpg'); min-height: 521.8px;" data-name="Slide">
                             <div class="container oe_unremovable">
                                 <div class="row">
@@ -540,7 +566,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="carousel-item pt128 pb128 o_colored_level oe_img_bg o_bg_img_center" style="background-image: url('/nthub_library/static/description/slide3.jpg'); min-height: 521.8px;" data-name="Slide">
                             <div class="container oe_unremovable">
                                 <div class="row">
@@ -554,7 +580,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <a class="carousel-control-prev o_not_editable o_we_no_overlay" role="img" aria-label="Trước đó" title="Trước đó" href="#myCarousel1745224290802" data-bs-slide="prev">
                         <span class="carousel-control-prev-icon"></span>
                         <span class="visually-hidden o_default_snippet_text">Trước</span>
@@ -588,7 +614,7 @@
                 </div>
             </section>
         </t>
-    </template>       
+    </template>
 
 
     <!-- list books data-->
@@ -639,7 +665,7 @@
                                         <p>Số lượng bản sao sách : <span t-esc="data['copy_ids']"/></p>
                                         <p>Số lượng bản sao sách đã được mượn : <span t-esc="data['borrowed_count']"/></p>
                                         <p>Số lượng bản sao sách đã được đăng ký mượn : <span t-esc="data['book_reserved']"/></p>
-                                        
+
                                         <t t-if="not data['copy_ids'] == 'block'">
                                             <a t-att-href="'/reserve-book/detail?id=' + str(data['book'].id)">Đặt lịch Mượn <i class="fa fa-long-arrow-right align-middle ms-1" contenteditable="false"></i></a>
                                         </t>
@@ -728,7 +754,7 @@
                                         <p>Sử dụng đoạn mã này để tạo các loại thành phần khác nhau làm nổi bật hình ảnh căn trái hoặc phải cùng với nội dung văn bản. Nhân đôi phần tử để tạo danh sách phù hợp với nhu cầu của bạn.</p>
                                         <p> Số lượng bản sao sách : <span t-esc="data['copy_ids']"/></p>
                                         <p> Số lượng bản sao sách đã được mượn : <span t-esc="data['borrowed_count']"/></p>
-                                        
+
                                         <a t-att-href="'/reserve-book/detail?id=' + str(data['book'].id)">Đặt lịch Mượn <i class="fa fa-long-arrow-right align-middle ms-1" contenteditable="false"></i></a>
                                     </div>
                                 </div>
@@ -771,7 +797,7 @@
                 <div class="container s_allow_columns">
                     <h2 class="display-3-fs o_default_snippet_text" style="text-align: center;">ĐẶT HẸN MƯỢN SÁCH</h2>
                 </div>
-            </section> 
+            </section>
             <section class="s_numbers o_cc o_cc2 o_colored_level pt0 pb0" data-snippet="s_numbers" data-name="Numbers" style="background-image: none;">
                 <div class="container">
                     <div class="row">
@@ -803,14 +829,14 @@
                             <img src="/web/image/website.s_image_text_default_image" class="img img-fluid mx-auto" alt="" loading="lazy" data-mimetype="image/jpeg" data-original-id="506" data-original-src="/website/static/src/img/snippets_demo/s_image_text.jpg" data-mimetype-before-conversion="image/jpeg" style=""/>
                             <br></br>
                             <p><a href="#" class="btn btn-secondary" data-bs-original-title="" title=""> <span t-esc="reserve_book.category_ids.name"/> / <span t-esc="reserve_book.rack_ids.name"/> / <span t-esc="reserve_book.shelf_ids.name"/></a></p>
-                        
+
                         </div>
                         <div class="o_colored_level pt0 pb0 col-lg-7">
                             <h2 t-esc="reserve_book.name"> </h2>
-                            
+
                             <!-- <p><a href="#" class="btn btn-secondary" data-bs-original-title="" title="">Category / rack / shelf</a></p> -->
                             <section class="s_website_form pt16 pb16" data-vcss="001" data-snippet="s_website_form" data-name="Biểu mẫu">
-                    
+
                                 <div class="container">
                                     <form action="/book-reserve/success/" data-model_name="books.borrows" method="post" class="o_website_form form-horizontal">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -927,7 +953,7 @@
                                             <button type="submit" class="btn btn-primary mt-2" onclick="console.log('Form submitted')" >Đặt lịch</button>
                                     </form>
 
-                                </div>  
+                                </div>
                             </section>
                         </div>
                     </div>
@@ -942,7 +968,7 @@
                 <div class="container s_allow_columns">
                     <h2 class="display-3-fs o_default_snippet_text" style="text-align: center;">ĐẶT HẸN MƯỢN SÁCH</h2>
                 </div>
-            </section>       
+            </section>
             <section class="s_numbers o_cc o_cc2 o_colored_level pt0 pb0" data-snippet="s_numbers" data-name="Numbers" style="background-image: none;">
                 <div class="container">
                     <div class="row">
@@ -964,7 +990,7 @@
                         </div>
                     </div>
                 </div>
-            </section>    
+            </section>
             <section class="s_text_image pt32 o_colored_level pb0" data-snippet="s_image_text" data-name="Hình ảnh - Văn bản" style="background-image: none;">
                 <div class="container">
                     <div class="row align-items-center">
@@ -1090,7 +1116,7 @@
 
                                     <!-- <div class="btn btn-primary mt-2" >
                                         <button>
-                                            <span>Submit</span> 
+                                            <span>Submit</span>
                                         </button>
                                     </div> -->
                                 </form>
@@ -1099,8 +1125,8 @@
                     </div>
                 </div>
             </section>
-            
-                      
+
+
 
         </t>
     </template>
@@ -1129,6 +1155,8 @@
                                             <span>Bạn đẫ đặt lịch mượn sách thành công <b>thành công</b></span>
                                         </h5>
                                         <p class="text-center">Hãy đến đúng thời giạn đăng ký!!!</p>
+                                        <p class="text-center"> <a href="/my/home/borrows_list_details">Xem chi tiết</a></p>
+
                                     </div>
                                     <div class="col-lg-4">
                                         <ul class="list-unstyled mb-0 ps-2">

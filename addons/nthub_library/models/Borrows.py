@@ -305,6 +305,47 @@ class Borrows(models.Model):
                 record.start_borrow = fields.Datetime.now()
                 print("Reserve records have been changed to borrow.")
         return True
+    
+    # def check_reserve(self):
+    #     pass
+    @api.model
+    def check_reserve(self):
+        """Process the return of borrowed books by scanning QR code"""
+        code = self.scan_barcode_with_zbarcam()
+        if code:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Tìm Kiếm Theo Mã Đặt Mượn',
+                'res_model': 'books.borrows',
+                'view_mode': 'tree,form',
+                'views': [(self.env.ref('nthub_library.view_borrows_tree').id, 'tree'),
+                          (self.env.ref('nthub_library.view_borrows_form').id, 'form')],
+                'target': 'current',
+                'domain': [('borrow_id', '=', code)],
+                'context': {'default_borrow_id': code}
+            }
+        else:
+            return {
+                'type': 'ir.actions.act_window_close'
+            }
+
+
+
+
+    def scan_barcode_with_zbarcam(self):
+        try:
+            process = subprocess.Popen(['zbarcam', '--raw'], stdout=subprocess.PIPE)
+            print("Đang chờ quét mã...")
+            for line in iter(process.stdout.readline, b''):
+                barcode_data = line.decode('utf-8').strip()
+                print(f'Mã đã quét: {barcode_data}')
+                process.terminate()
+                return barcode_data
+        except Exception as e:
+            print(f'Lỗi: {e}')
+            return None
+
+
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 

@@ -11,3 +11,4 @@ from . import configuration
 from . import library_card
 from . import product_template
 from . import stock_quant
+from . import project_task

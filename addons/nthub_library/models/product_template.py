@@ -104,5 +104,3 @@ class ProductTemplate(models.Model):
                     'active': self.active_rack,
                     'library_shelf_ids': [(6, 0, self.library_shelf_ids.ids)]
                 })
-        else:  
-            raise UserError("Không phải lựa chọn tạo mới giá sách!!!")

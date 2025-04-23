@@ -68,11 +68,11 @@ class bookcopies(models.Model):
     @api.model
     def update_state_book(self):
         today = date.today()
-        book_reserve = self.env['books.borrows'].search([('state', '=', 'reserve'), ('reserve_date', '<', today)])
+        book_reserve = self.env['books.borrows'].search([('state', '=', 'reserve'), ('cancel_reserve', '=', today)])
         print("book_reserve",book_reserve)
         for rec in book_reserve:
             if rec:
-                rec.state = 'delayed'
+                rec.state = 'draft'
                 rec.book_copy_list_ids.state = 'available'      
                 
             
@@ -109,6 +109,10 @@ class PurchaseOrder(models.Model):
         res = super(PurchaseOrder, self).button_confirm()
         for line in self.order_line:
                 if line.product_id:  # Chỉ xử lý sản phẩm vật lý
+                    quantity_shelf = self.env['library.shelf'].search([('id', '=', line.product_id.library_shelf_id.id)]).quantity
+                    quantity_default_shelf = self.env['library.shelf'].search([('id', '=', line.product_id.library_shelf_id.id)]).default_quantity
+                    if quantity_shelf + line.product_qty > quantity_default_shelf:
+                        raise UserError('Số Lượng Sách Trong Kệ Vượt Quá Giới Hạn!!!')
                     book = self.env['books.data'].search([('product_id', '=', line.product_id.id)], limit=1)
                     book_data = {
                         'name': line.product_id.name,
@@ -144,13 +148,7 @@ class PurchaseOrder(models.Model):
                             'library_shelf_id': book_data['shelf_ids'],
                             'library_rack_id': book_data['rack_ids'],
                         })
-                        print("book_category",book.category_ids.id)
-                        print("book_rack",book_data['rack_ids'])
-                        print("book_shelf",book_data['shelf_ids'])
-                        print("DK_CB",DK_CB)
                         dk_cb_list.append(book_copy.id)
-                    
-                    # Lưu DK_CB vào order line
                     line.dk_cb_ids = [(6, 0, dk_cb_list)]
         
         return res
@@ -165,7 +163,6 @@ class PurchaseOrder(models.Model):
             ('library_shelf_id', '=', shelf_id),
             ('book_id.rack_ids', '=', rack_id)
         ]).mapped('DK_CB')
-        print("existing_serials",existing_serials)
         if existing_serials:
             # Tìm số lớn nhất trong danh sách
             max_number = max(int(serial[-3:]) 
@@ -232,10 +229,6 @@ class PurchaseOrder(models.Model):
                         'purchase_order_id': order.id  # Liên kết với đơn đặt hàng hiện tại
                     })
 
-        # Tạo bản ghi trong model library.label.report
-        # self.env['library.label.report'].create(report_data)
-        print(report_data)
-        
         existing_report = self.env['library.label.report'].search([
             ('purchase_order_id','=',order.id)
         ], limit = 1 )
