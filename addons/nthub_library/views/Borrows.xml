@@ -45,8 +45,7 @@
                         <field name="start_borrow"/>
                         <field name="end_borrow"/>
                         <field name="borrows_duration"/>
-                        <field name="received_date"/>
-                        <field name="delay_penalties_id"/>
+                        <field name="delay_penalties"/>
                         <field name="delay_duration"/>
                     </group>
                     <group string="Đặt trước" invisible="state != 'reserve'">

@@ -19,20 +19,16 @@
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
-              <!-- <xpath expr="//div[@name='options']" position="after">   
-       
 
-              </xpath> -->
+              
+            <span class="d-inline-flex" position="after">
+                <field name="origin_type" />
+                <label for="origin_type"/>
+            </span>
+
             <xpath expr="//page[@name='general_information']" position="attributes">
               <attribute name="invisible">1</attribute>
             </xpath>
-            <!-- <xpath expr="//group[@name='group_standard_price']" position="attributes">
-              <attribute name="invisible">1</attribute>
-            </xpath>
-
-            <xpath expr="//group//field[@name='description']" position="attributes">
-              <attribute name="invisible">1</attribute>
-            </xpath> -->
             <xpath expr="//page[@name='sales']" position="before">
               <page name="book_information" string= "Thông tin Sách">
                 <group name="book_information">
