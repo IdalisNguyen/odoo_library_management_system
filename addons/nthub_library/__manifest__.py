@@ -52,7 +52,6 @@
 
 
     'demo': [
-        'demo/demo.xml',
     ],
     'images': ['static/description/banner.gif'],
     'license': 'LGPL-3',

@@ -29,6 +29,7 @@ class ProductTemplate(models.Model):
         required=False,
         store=True
     )
+    origin_type = fields.Boolean('Nội sinh', default=True)
 
     library_shelf_id = fields.Many2one(
         'library.shelf', 

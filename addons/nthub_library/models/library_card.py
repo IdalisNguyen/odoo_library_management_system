@@ -112,7 +112,17 @@ class LibraryCard(models.Model):
                     if book_copies:
                         # Tìm borrow record liên quan
                         borrow_record = self.borrow_copies_ids.filtered(lambda b: book_copies in b.book_copy_list_ids)
-                        if borrow_record:
+                        if borrow_record.state == "delayed":
+                            process.terminate()
+                            return {
+                                'type': 'ir.actions.act_window',
+                                'name': 'Chi tiết phiếu mượn',
+                                'res_model': 'books.borrows',
+                                'view_mode': 'form',
+                                'res_id': borrow_record.id,
+                                'target': 'new',
+                            }
+                        elif borrow_record:
                             # Bỏ sách khỏi danh sách mượn
                             borrow_record.book_copy_list_ids = [(3, book_copies.id)]
 
@@ -137,8 +147,7 @@ class LibraryCard(models.Model):
         except FileNotFoundError:
             raise UserError("Không tìm thấy `zbarcam`. Cài bằng: sudo apt install zbar-tools")
         except Exception as e:
-            raise UserError(f"Lỗi khi quét mã sách: {e}")            
-                
+            raise UserError(f"Lỗi khi quét mã sách: {e}")
     def running_state(self):
         """Change state to running"""
         # self.code = self.env["ir.sequence"].next_by_code("library.card"

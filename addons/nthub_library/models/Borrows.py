@@ -41,13 +41,18 @@ class Borrows(models.Model):
                               ('reserve','ĐẶT TRƯỚC')
                               ], default="draft", string='state')
     end_borrow = fields.Datetime(string="Ngày Trả", store=True,
-                                 compute='_compute_end_borrow')
+                                )
 
     color = fields.Integer()
     duration = fields.Integer()
     received_date = fields.Datetime()
-    delay_duration = fields.Float(string="Delay Duration", readonly=True)
+    delay_duration = fields.Float(string="Phí Phạt", readonly=True)
     delay_penalties_id = fields.Many2one('delay.penalities', string="Phạt Trì Hoãn")
+    delay_penalties = fields.Selection([('damaged','Sách trả hư hại'),
+                                           ('lost','Sách mẤt'),
+                                           ('normal','Bình thường')
+                                           ]
+                                          , default = "normal",string="Lựa chọn phạt trì hoãn")
     borrows_duration = fields.Float(string="Thời Hạn Mượn", default = 6)
     
     book_copy_list_ids = fields.Many2many('book.copies')
@@ -153,11 +158,11 @@ class Borrows(models.Model):
 
 
     # tính toán ngày trả
-    @api.depends("start_borrow", "borrows_duration")
-    def _compute_end_borrow(self):
-        for rec in self:
-            if rec.start_borrow:
-                rec.end_borrow = rec.start_borrow + rd(months=rec.borrows_duration)            
+    # @api.depends("start_borrow", "borrows_duration")
+    # def _compute_end_borrow(self):
+    #     for rec in self:
+    #         if rec.start_borrow:
+    #             rec.end_borrow = rec.start_borrow + rd(months=rec.borrows_duration)            
             
     # chuyển trạng thái về kết thúc
     def action_ended(self):
@@ -329,9 +334,6 @@ class Borrows(models.Model):
                 'type': 'ir.actions.act_window_close'
             }
 
-
-
-
     def scan_barcode_with_zbarcam(self):
         try:
             process = subprocess.Popen(['zbarcam', '--raw'], stdout=subprocess.PIPE)
@@ -344,7 +346,22 @@ class Borrows(models.Model):
         except Exception as e:
             print(f'Lỗi: {e}')
             return None
-
+    def compute_delay_duration(self):
+        today = date.today()
+        delay_fee = 5000
+        print(today)
+        running_borrows = self.env['books.borrows'].search([('state', '=', 'running'), ('end_borrow', '<', today)])
+        for rec in running_borrows:
+            if rec:
+                rec.state = 'delayed' 
+                rec.delay_duration += delay_fee
+    # def update_delayed_status(self):
+    #     # cron job every day to check state =running $ end_borrow < date today  change state from running to delayed
+    #     today = date.today()
+    #     running_borrows = self.env['books.borrows'].search([('state', '=', 'running'), ('end_borrow', '<', today)])
+    #     for rec in running_borrows:
+    #         if rec:
+    #             rec.state = 'delayed'        
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
