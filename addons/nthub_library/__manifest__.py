@@ -32,6 +32,7 @@
         'views/dashboard.xml',
         'views/templates.xml',
         'data/scheduled.xml',
+        'report/books_borrows_report.xml',
         'views/menu.xml',
         'views/stock_quant.xml',
         
@@ -47,6 +48,8 @@
             'nthub_library/static/src/js/button_check_reserve.js',
             'nthub_library/static/src/xml/button_return.xml',
             'nthub_library/static/src/xml/button_check_reserve.xml',
+            'nthub_library/static/src/js/button_report.js',
+            'nthub_library/static/src/xml/button_report.xml',
         ],
     },
 

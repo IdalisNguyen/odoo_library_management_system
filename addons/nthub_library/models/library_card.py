@@ -167,6 +167,7 @@ class LibraryCard(models.Model):
                         'password': record.id_student or record.id_teacher,
                         'groups_id': [(4, group_user.id)],  # ✅ chỉ thêm 1 group
                     })
+                    
                 else:
                     # Nếu user đã tồn tại, vẫn thêm group thư viện nếu chưa có
                     if group_user.id not in existing_user.groups_id.ids:

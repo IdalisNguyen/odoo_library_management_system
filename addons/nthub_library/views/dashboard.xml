@@ -1,33 +1,50 @@
 <odoo>
     <data>
-        <!--        tree & state=running-->
         <record model="ir.actions.act_window" id="act_borrows_running">
-            <field name="name">Running Borrows</field>
+            <field name="name">Danh sách phiếu mượn đang hoạt động</field>
             <field name="res_model">books.borrows</field>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="nthub_library.view_borrows_tree"/>
-            <field name="context">{'default_state':'running'}</field>
+            <field name="context">{'default_state': 'running'}</field>
             <field name="domain">[('state', '=', 'running')]</field>
         </record>
-        <!--tree $ state = delayed -->
-        <record model="ir.actions.act_window" id="act_borrows_delayed">
-            <field name="name">delayed Borrows</field>
+
+        <record model="ir.actions.act_window" id="act_reserve">
+            <field name="name">Danh sách phiếu đặt hẹn mượn</field>
             <field name="res_model">books.borrows</field>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="nthub_library.view_borrows_tree"/>
-            <field name="context">{'default_state':'delayed'}</field>
+            <field name="search_view_id" ref="nthub_library.view_borrows_search"/>
+
+            <field name="domain">[('state', 'in', ['running', 'reserve'])]</field>
+			<field name="context">
+				{
+                    'search_default_filter_reserve_or_running': 1,
+                    'action_name': 'action_reserve'
+
+				}
+			</field>
+        </record>
+
+
+        <record model="ir.actions.act_window" id="act_borrows_delayed">
+            <field name="name">Danh sách phiếu mượn quá hạn</field>
+            <field name="res_model">books.borrows</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="nthub_library.view_borrows_tree"/>
+            <field name="context">{'default_state': 'delayed'}</field>
             <field name="domain">[('state', '=', 'delayed')]</field>
         </record>
-        <!--graph-->
+
         <record model="ir.actions.act_window" id="act_borrows_graph">
-            <field name="name">delayed Borrows</field>
+            <field name="name">Biểu đồ phiếu mượn</field>
             <field name="res_model">books.borrows</field>
             <field name="view_mode">graph</field>
             <field name="view_id" ref="nthub_library.view_borrows_graph"/>
         </record>
-        <!--pivot-->
+
         <record model="ir.actions.act_window" id="act_borrows_tpivot">
-            <field name="name">Pivot Borrows</field>
+            <field name="name">Pivot phân tích mượn sách</field>
             <field name="res_model">books.borrows</field>
             <field name="view_mode">pivot</field>
             <field name="view_id" ref="nthub_library.view_borrows_pivot"/>
@@ -38,30 +55,38 @@
             <field name="model">board.board</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Dashboard">
+                <form string="Thống kê Mượn Sách">
                     <board style="2-1">
                         <column>
-                            <action string="Running Borrows"
+                            <action string="📚 Mượn Đang Diễn Ra"
                                     name="%(act_borrows_running)d"
-                                    height="150"
-                                    width="510"/>
-                            <action string="graph Borrows"
+                                    height="300"
+                                    width="100%"/>
+                            <action string="📚 Lịch Đặt Mượn"
+                                    name="%(action_reserve)d"
+                                    height="300"
+                                    width="100%"/>                                    
+                            <action string="📈 Biểu Đồ Mượn Sách"
                                     name="%(act_borrows_graph)d"
-                                    height="150"
-                                    width="510"/>
+                                    height="300"
+                                    width="100%"/>
+
                         </column>
                         <column>
-                            <action string="Delayed Borrows"
+                            <action string="⏰ Mượn Quá Hạn"
                                     name="%(act_borrows_delayed)d"
-                                    height="150"
-                                    width="510"/>
-                            <action string="Pivot Borrows"
-                                    name="%(act_borrows_tpivot)d"/>
+                                    height="300"
+                                    width="100%"/>
+                            <action string="📊 Phân Tích Pivot"
+                                    name="%(act_borrows_tpivot)d"
+                                    height="300"
+                                    width="100%"/>
                         </column>
                     </board>
                 </form>
             </field>
         </record>
+
         <record model="ir.actions.act_window" id="open_board_my_dash_action">
             <field name="name">Dashboard</field>
             <field name="res_model">board.board</field>

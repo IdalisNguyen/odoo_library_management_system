@@ -5,7 +5,6 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     stock_quantity = fields.Float(string='Stock Quantity', compute='_compute_stock_quantity')
-    category_ids = fields.Many2one('books.category', string="Dach Mục", required=True)
     price = fields.Float(string="Price")
     image = fields.Image(string="Book Cover")
 
@@ -23,6 +22,7 @@ class ProductTemplate(models.Model):
         ('new','Tạo mới Giá sách'),
         ('old','Chọn Giá sách hiện có')
     ] , help="Tạo mới Giá sách/Chọn Giá sách hiện có", string="Chọn Giá sách lưu ", default = "old")
+    category_ids = fields.Many2one('books.category', string="Dach Mục", required=True)
 
     rack = fields.Many2one(
         'library.rack',
@@ -64,9 +64,8 @@ class ProductTemplate(models.Model):
                     raise UserError("Please fill in all required fields: code, name, and active status.")
                 if not record.library_shelf_ids:
                     raise UserError("Please select at least one shelf.")
-    
-       
-
+                
+                
     @api.depends('product_variant_ids')
     def _compute_stock_quantity(self):
         for record in self:
@@ -81,14 +80,26 @@ class ProductTemplate(models.Model):
     def _compute_available_shelves(self):
         for record in self:
             if record.rack:
+                print("rack", record.rack)
                 record.available_shelf_ids = record.rack.library_shelf_ids
-            if record.name_rack:
+            elif record.name_rack:
                 record.available_shelf_ids = self.env['library.shelf'].search([
                     ('rack_id.name', '=', record.name_rack)
                 ])
             else:
                 record.available_shelf_ids = self.env['library.shelf'].search([])   
-
+ 
+    @api.onchange('select_rack')
+    def _onchange_select_rack(self):
+        if self.select_rack == 'new':
+            # Clear fields related to 'old' selection
+            self.rack = False
+        elif self.select_rack == 'old':
+            # Clear fields related to 'new' selection
+            self.name_rack = False
+            self.code_rack = False
+            self.active_rack = True
+            self.library_shelf_ids = [(5, 0)]
                 
     @api.constrains("library_shelf_ids")
     def check_shelf(self):

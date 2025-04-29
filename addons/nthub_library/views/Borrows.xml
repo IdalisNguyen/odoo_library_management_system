@@ -102,9 +102,11 @@
                     <field name="borrow_id"/>
                     <filter name="type_reserve" string="Hẹn Mượn sách"
                             domain="[('state','=','reserve')]"/>
+                    <filter name="filter_reserve_or_running" string="Đang mượn hoặc Đặt trước"
+                            domain="[('state', 'in', ['running', 'reserve'])]"/>
 
                     <filter name="type_borrow" string="Mượn sách"
-                            domain="[('state','=','draft'),('state','=','ended')]"/>
+                            domain="[('state','!=','reserve')]"/>
                     <separator/>
 
                     <group expand="0" string="Group By">
@@ -189,6 +191,16 @@
             <field name="name">Mượn sách</field>
             <field name="res_model">books.borrows</field>
             <field name="view_mode">tree,form,calendar,pivot,graph,kanban</field>
+            <field name="domain">[('state', '!=', 'reserve')]</field>
+			<field name="context">
+				{
+					'search_default_type_borrow': 1,
+                    'action_name': 'action_borrowed'
+
+				}
+			</field>
+			<field name="search_view_id" ref="view_borrows_search"/>
+
 
         </record>
         <record model="ir.actions.act_window" id="action_reserve">

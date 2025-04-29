@@ -1,9 +1,13 @@
 #-*- coding: utf-8 -*-
-from odoo import http
-from odoo.http import request
+from odoo import http, _
+from odoo.http import content_disposition, request
+from odoo.tools import ustr, osutil
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from datetime import timedelta, datetime, date
-
+import io
+import json
+import xlsxwriter
+from collections import deque
 
 class Borrows(CustomerPortal):
     def _prepare_home_portal_values(self, counters):
@@ -37,7 +41,6 @@ class Borrows(CustomerPortal):
     def get_borrower_form(self, order_id, **kw):
         order = request.env['books.borrows'].sudo().browse(order_id)
         vals = {"order": order}
-        print("order", order)
         return request.render('nthub_library.borrower_detail_form_shown_link', vals, {'page_name': 'desired_borrower'})
 
 
@@ -56,7 +59,6 @@ class Borrows(CustomerPortal):
 
     @http.route('/my/borrower/create', type="http", auth='public', website=True, csrf=True)
     def request_submit(self, **kwargs):
-        print("kwargs", kwargs)
         request.env['books.borrows'].sudo().create(kwargs)
         response = http.request.render('nthub_library.create_borrowing_done'
                                        , {'page_name': 'borrowing_created'})
@@ -87,7 +89,6 @@ class Borrows(CustomerPortal):
 
     @http.route('/reserve/create/', type="http", auth='public', website=True, csrf=True)
     def test(self, **kwargs):
-        print("kwargs", kwargs)
 
         book_copy_id = kwargs.get('book_copy')
         date_reserve = kwargs.get('date_reserve')
@@ -148,8 +149,7 @@ class LibraryController(http.Controller):
             borrowed_count = request.env['book.copies'].sudo().search_count([('state', '=', 'borrowed'), ('book_id', '=', book.id)])
             book_reserved = request.env['book.copies'].sudo().search_count([('state', '=', 'reserve'), ('book_id', '=', book.id)])
             block = borrowed_count + book_reserved
-            print("block", block)
-            print("copy_ids", copy_ids)
+
             books_with_borrowed_count.append({
                 'book': book,
                 'copy_ids': copy_ids,
@@ -194,9 +194,118 @@ class LibraryController(http.Controller):
             step=per_page,
             scope=5,
         )
-        print("paper", paper)        
         return request.render('nthub_library.book_data_fl_category', {
             'books_data': books_with_borrowed_count, 
             'pager': paper,
         })
 
+
+class CustomBorrowReportController(http.Controller):
+
+    @http.route('/nthub_library/custom_borrow_report_xlsx', type='http', auth='user')
+    # def download_custom_borrow_report(self, model=None, domain=None, context=None, groupedBy=None, **kwargs):
+    def download_custom_borrow_report(self, data, **kw):
+        jdata = json.loads(data)
+        output = io.BytesIO()
+        workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+        worksheet = workbook.add_worksheet(jdata['title'])
+
+        header_bold = workbook.add_format({'bold': True, 'pattern': 1, 'bg_color': '#AAAAAA'})
+        header_plain = workbook.add_format({'pattern': 1, 'bg_color': '#AAAAAA'})
+        common_format = {
+            'font_name': 'Times New Roman',
+            'font_size': 12,
+            'align': 'center',
+            'valign': 'vcenter',
+        }
+        common_bold_format = common_format.copy()
+        common_bold_format.update({'bold': True})
+
+        format_heading = workbook.add_format({**common_bold_format, 'font_size': 14})
+
+        bold = workbook.add_format({'bold': True})
+
+        measure_count = jdata['measure_count']
+        origin_count = jdata['origin_count']
+
+        # Step 1: writing col group headers
+        col_group_headers = jdata['col_group_headers']
+        
+        worksheet.merge_range('A1:C1', 'TRƯỜNG ĐẠI HỌC TÂY NGUYÊN ', format_heading)
+        worksheet.merge_range('E1:G1', 'CỘNG HÒA XÃHỘI CHỦNGHĨA VIỆT NAM ', format_heading)
+
+        # x,y: current coordinates
+        # carry: queue containing cell information when a cell has a >= 2 height
+        #      and the drawing code needs to add empty cells below
+        x, y, carry = 1, 0, deque()
+        for i, header_row in enumerate(col_group_headers):
+            worksheet.write(i, 0, '', header_plain)
+            for header in header_row:
+                while (carry and carry[0]['x'] == x):
+                    cell = carry.popleft()
+                    for j in range(measure_count * (2 * origin_count - 1)):
+                        worksheet.write(y, x+j, '', header_plain)
+                    if cell['height'] > 1:
+                        carry.append({'x': x, 'height': cell['height'] - 1})
+                    x = x + measure_count * (2 * origin_count - 1)
+                for j in range(header['width']):
+                    worksheet.write(y, x + j, header['title'] if j == 0 else '', header_plain)
+                if header['height'] > 1:
+                    carry.append({'x': x, 'height': header['height'] - 1})
+                x = x + header['width']
+            while (carry and carry[0]['x'] == x):
+                cell = carry.popleft()
+                for j in range(measure_count * (2 * origin_count - 1)):
+                    worksheet.write(y, x+j, '', header_plain)
+                if cell['height'] > 1:
+                    carry.append({'x': x, 'height': cell['height'] - 1})
+                x = x + measure_count * (2 * origin_count - 1)
+            x, y = 1, y + 1
+
+        # Step 2: writing measure headers
+        measure_headers = jdata['measure_headers']
+
+        if measure_headers:
+            worksheet.write(y, 0, '', header_plain)
+            for measure in measure_headers:
+                style = header_bold if measure['is_bold'] else header_plain
+                worksheet.write(y, x, measure['title'], style)
+                for i in range(1, 2 * origin_count - 1):
+                    worksheet.write(y, x+i, '', header_plain)
+                x = x + (2 * origin_count - 1)
+            x, y = 1, y + 1
+            # set minimum width of cells to 16 which is around 88px
+            worksheet.set_column(0, len(measure_headers), 16)
+
+        # Step 3: writing origin headers
+        origin_headers = jdata['origin_headers']
+
+        if origin_headers:
+            worksheet.write(y, 0, '', header_plain)
+            for origin in origin_headers:
+                style = header_bold if origin['is_bold'] else header_plain
+                worksheet.write(y, x, origin['title'], style)
+                x = x + 1
+            y = y + 1
+
+        # Step 4: writing data
+        x = 0
+        for row in jdata['rows']:
+            worksheet.write(y, x, row['indent'] * '     ' + ustr(row['title']), header_plain)
+            for cell in row['values']:
+                x = x + 1
+                if cell.get('is_bold', False):
+                    worksheet.write(y, x, cell['value'], bold)
+                else:
+                    worksheet.write(y, x, cell['value'])
+            x, y = 0, y + 1
+
+        workbook.close()
+        xlsx_data = output.getvalue()
+        filename = osutil.clean_filename(_("Pivot %(title)s (%(model_name)s)", title=jdata['title'], model_name=jdata['model']))
+        response = request.make_response(xlsx_data,
+            headers=[('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+                    ('Content-Disposition', content_disposition(filename + '.xlsx'))],
+        )
+
+        return response

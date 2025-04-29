@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<record model="ir.ui.view" id="view_books_borrows_report_search">
+    <field name="name">books.borrows.report.search</field>
+    <field name="model">books.borrows.report</field>
+    <field name="arch" type="xml">
+        <search>
+            <group expand="0" string="Group By">
+                <filter name="group_by_borrow_date_day" string="Ngày mượn (Ngày)" 
+                    context="{'group_by': 'borrow_date:day', 'group_by_field_date_borrow_date': 'day'}"/>
+                <filter name="group_by_student_id" string="Mã sinh viên" 
+                    context="{'group_by': 'student_id'}"/>
+            </group>
+
+            <group expand="0"  string="Tìm kiếm">
+            <!-- <filter name="borrow_date" string="Tìm kiếm" domain="[('borrow_date','&gt;=', datetime.datetime.combine(context_today(), datetime.time(7,0,0))), ('borrow_date','&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/> -->
+                <field name="borrow_date" filter_domain="[('borrow_date','&gt;=', datetime.datetime.combine(context_today(), datetime.time(7,0,0)))" string="Từ ngày"/>
+                <field name="borrow_date" filter_domain="[('borrow_date','&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]" string="Đến ngày"/>
+                <field name="student_id" string="Mã sinh viên"/>
+            </group>
+        </search>
+    </field>
+</record>
+
+
+<record id="action_books_borrows_report" model="ir.actions.act_window">
+    <field name="name">Thống kê trễ hẹn</field>
+    <field name="res_model">books.borrows.report</field>
+    <field name="view_mode">pivot,tree,graph</field>
+    <field name="domain">[('total_delayed', '&gt;', 0)]</field> 
+
+    <field name="context">
+        {
+            'search_default_group_by_borrow_date_day': 1,
+            'search_default_group_by_student_id': 1
+        }
+    </field>
+    <field name="search_view_id" ref="view_books_borrows_report_search"/>
+    <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">Chưa có dữ liệu</p>
+        <p>Báo cáo này cho biết số lượt mượn, trả, và phí phạt theo từng bạn đọc.</p>
+    </field>
+</record>
+
+
+<record id="action_books_borrows" model="ir.actions.act_window">
+    <field name="name">Thống kê mượn sách</field>
+    <field name="res_model">books.borrows.report</field>
+    <field name="view_mode">pivot,tree,graph</field>
+    <field name="context">
+        {
+            'search_default_group_by_borrow_date_day': 1,
+            'search_default_group_by_student_id': 1
+        }
+    </field>
+    <field name="search_view_id" ref="view_books_borrows_report_search"/>
+    <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">Chưa có dữ liệu</p>
+        <p>Báo cáo này cho biết số lượt mượn, trả, và phí phạt theo từng bạn đọc.</p>
+    </field>
+</record>
+
+
+
+</odoo>

@@ -68,7 +68,7 @@ class bookcopies(models.Model):
     @api.model
     def update_state_book(self):
         today = date.today()
-        book_reserve = self.env['books.borrows'].search([('state', '=', 'reserve'), ('cancel_reserve', '=', today)])
+        book_reserve = self.env['books.borrows'].search([('state', '=', 'reserve'), ('cancel_reserve', '<', today)])
         print("book_reserve",book_reserve)
         for rec in book_reserve:
             if rec:

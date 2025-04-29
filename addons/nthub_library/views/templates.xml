@@ -224,210 +224,179 @@
             </section>
 
 
-            <section class="s_tabs pt48 pb48 o_colored_level" data-vcss="001" data-snippet="s_tabs" data-name="Tab" style="background-image: none;">
+            <section class="s_tabs pt48 pb48 o_colored_level" style="background-image: none;">
                 <div class="container">
                     <div class="s_tabs_main">
+                        <!-- Tabs nav -->
                         <div class="s_tabs_nav mb-3">
-                            <ul class="nav nav-pills" role="tablist">
+                            <ul class="nav nav-pills flex-column flex-md-row" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <a class="nav-link o_default_snippet_text active" id="nav_tabs_link_1745224328627_93" data-bs-toggle="tab" href="#nav_tabs_content_1745224328627_93" role="tab" aria-controls="nav_tabs_content_1745224328627_93" aria-selected="true">Mượn Sách</a>
+                                    <a class="nav-link active" data-bs-toggle="tab" href="#tab_borrow" role="tab">Mượn Sách</a>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <a class="nav-link o_default_snippet_text" id="nav_tabs_link_1745224328628_94" data-bs-toggle="tab" href="#nav_tabs_content_1745224328628_94" role="tab" aria-controls="nav_tabs_content_1745224328628_94" aria-selected="false">Đặt Lịch</a>
+                                    <a class="nav-link" data-bs-toggle="tab" href="#tab_reserve" role="tab">Đặt Lịch</a>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <a class="nav-link o_default_snippet_text" id="nav_tabs_link_1745224328628_95" data-bs-toggle="tab" href="#nav_tabs_content_1745224328628_95" role="tab" aria-controls="nav_tabs_content_1745224328628_95" aria-selected="false">Kết Thúc</a>
+                                    <a class="nav-link" data-bs-toggle="tab" href="#tab_ended" role="tab">Kết Thúc</a>
                                 </li>
                             </ul>
                         </div>
+
+                        <!-- Tabs content -->
                         <div class="s_tabs_content tab-content">
-                            <div class="tab-pane fade active show" id="nav_tabs_content_1745224328627_93" role="tabpanel" aria-labelledby="nav_tabs_link_1745224328627_93">
-                                <div class="oe_structure oe_empty">
-                                    <section class="s_text_block" style="background-image: none;">
-                                        <div class="container s_allow_columns">
-                                            <table class="table-striped table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Tên Bạn đọc</th>
-                                                        <th>Tên Sách</th>
-                                                        <th>Ngày Mượn</th>
-                                                        <th>Email bạn đọc</th>
-                                                        <th>Trạng Thái</th>
-                                                        <th>Ngày Trả</th>
-                                                        <th>Thời hạn mượn / (Tháng)</th>
-                                                        <th>Phạt</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <t t-foreach="borrows_list" t-as="order">
-                                                        <tr>
-                                                            <td>
-                                                                <a t-attf-href="/desired_borrower/#{order.id}">
-                                                                    <span t-esc="order.code_id.name_borrower"/>
-                                                                </a>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.book_copy_list_ids.book_id.name"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.start_borrow"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.code_id.email"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.state"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.end_borrow"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.borrows_duration"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.delay_duration"/>
-                                                            </td>
-                                                        </tr>
-                                                    </t>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </section>
+                            <!-- Tab: Mượn sách -->
+                            <div class="tab-pane fade show active" id="tab_borrow" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Tên Bạn đọc</th>
+                                                <th>Tên Sách</th>
+                                                <th>Ngày Mượn</th>
+                                                <th>Email bạn đọc</th>
+                                                <th>Trạng Thái</th>
+                                                <th>Ngày Trả</th>
+                                                <th>Thời hạn (tháng)</th>
+                                                <th>Phạt</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="borrows_list" t-as="order">
+                                                <tr>
+                                                    <td><a t-attf-href="/desired_borrower/#{order.id}"><span t-esc="order.code_id.name_borrower"/></a></td>
+                                                    <td><span t-esc="order.book_copy_list_ids.book_id.name"/></td>
+                                                    <td><span t-esc="order.start_borrow"/></td>
+                                                    <td><span t-esc="order.code_id.email"/></td>
+                                                    <td><span t-esc="order.state"/></td>
+                                                    <td><span t-esc="order.end_borrow"/></td>
+                                                    <td><span t-esc="order.borrows_duration"/></td>
+                                                    <td><span t-esc="order.delay_duration"/></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="nav_tabs_content_1745224328628_94" role="tabpanel" aria-labelledby="nav_tabs_link_1745224328628_94">
-                                <div class="oe_structure oe_empty">
-                                    <section class="s_text_block" style="background-image: none;">
-                                        <div class="container s_allow_columns">
-                                            <table class="table-striped table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Tên Bạn Đọc</th>
-                                                        <th>Tên Sách</th>
-                                                        <th>Ngày Mượn</th>
-                                                        <th>Email Bạn Đọc</th>
-                                                        <th>Trạng Thái</th>
-                                                        <th>Hạn Đăng Ký Mượn</th>
-                                                        <th>Mã Đặt Mượn</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <t t-foreach="reserve_list" t-as="order">
-                                                        <tr>
-                                                            <td>
-                                                                <a t-attf-href="/desired_borrower/#{order.id}">
-                                                                    <span t-esc="order.code_id.name_borrower"/>
-                                                                </a>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.book_copy_list_ids.book_id.name"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.start_borrow"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.code_id.email"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.state"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.cancel_reserve"/>
 
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" class="btn btn-primary" t-on-click="onClickBarcode" data-bs-toggle="modal" data-bs-target="#barcodeModal">
-                                                                    <span t-esc="order.borrow_id"/>
-                                                                </button>
-                                                            </td>
+                            <!-- Tab: Đặt lịch -->
+                            <div class="tab-pane fade" id="tab_reserve" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Tên Bạn Đọc</th>
+                                                <th>Tên Sách</th>
+                                                <th>Ngày Mượn</th>
+                                                <th>Email Bạn Đọc</th>
+                                                <th>Trạng Thái</th>
+                                                <th>Hạn Đăng Ký Mượn</th>
+                                                <th>Mã Đặt Mượn</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="reserve_list" t-as="order">
+                                                <tr>
+                                                    <td><a t-attf-href="/desired_borrower/#{order.id}"><span t-esc="order.code_id.name_borrower"/></a></td>
+                                                    <td><span t-esc="order.book_copy_list_ids.book_id.name"/></td>
+                                                    <td><span t-esc="order.start_borrow"/></td>
+                                                    <td><span t-esc="order.code_id.email"/></td>
+                                                    <td><span t-esc="order.state"/></td>
+                                                    <td><span t-esc="order.cancel_reserve"/></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" t-attf-data-bs-target="#barcodeModal_#{order.id}">
+                                                            <span t-esc="order.borrow_id"/>
+                                                        </button>
 
-                                                            <!-- Modal -->
-                                                            <div class="modal fade" id="barcodeModal" tabindex="-1" aria-labelledby="barcodeModalLabel" aria-hidden="true">
-                                                                <div class="modal-dialog">
+                                                        <!-- Modal -->
+                                                        <t t-if="order.borrow_id">
+                                                            <div class="modal fade" t-attf-id="barcodeModal_#{order.id}" tabindex="-1" aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered modal-lg">
                                                                     <div class="modal-content">
                                                                         <div class="modal-header">
-                                                                            <h5 class="modal-title" id="barcodeModalLabel">Mã Barcode</h5>
+                                                                            <h5 class="modal-title">Mã Barcode</h5>
                                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                         </div>
                                                                         <div class="modal-body">
-                                                                            <p>Mã phiếu mượn: <span t-esc="order.borrow_id"/></p>
-                                                                            <div>
-                                                                                <img t-att-src="'/report/barcode/?barcode_type=Code128&amp;value=' + str(order.borrow_id)" 
-                                                                                    alt="Barcode" width="265" height="80"/>                                                                                <!-- <img t-att-src="'/report/barcode/?barcode_type=Code128;value=' + str(order.borrow_id)" alt="Barcode"/> -->
+                                                                            <div class="container-fluid">
+                                                                                <div class="row mb-2">
+                                                                                    <div class="col-12">
+                                                                                        <strong>Mã phiếu mượn:</strong>
+                                                                                        <span t-esc="order.borrow_id"/>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row mb-3">
+                                                                                    <div class="col-12">
+                                                                                        <p class="fw-bold mb-2">Mã vạch phiếu mượn</p>
+                                                                                        <div class="border rounded p-3 bg-light text-center">
+                                                                                            <img t-att-src="'/report/barcode/?barcode_type=Code128&amp;value=' + str(order.borrow_id)"
+                                                                                                alt="Barcode" class="img-fluid" style="max-width: 100%; height: auto;" />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row mb-2">
+                                                                                    <div class="col-12"><strong>Danh mục:</strong> <span t-esc="order.book_copy_list_ids.book_id.category_ids.name"/></div>
+                                                                                </div>
+                                                                                <div class="row mb-2">
+                                                                                    <div class="col-12"><strong>Giá sách:</strong> <span t-esc="order.book_copy_list_ids.book_id.rack_ids.name"/></div>
+                                                                                </div>
+                                                                                <div class="row mb-2">
+                                                                                    <div class="col-12"><strong>Kệ sách:</strong> <span t-esc="order.book_copy_list_ids.book_id.shelf_ids.name"/></div>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                         <div class="modal-footer">
-                                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                                            <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Đóng</button>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </tr>
-                                                    </t>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </section>
+                                                        </t>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="nav_tabs_content_1745224328628_95" role="tabpanel" aria-labelledby="nav_tabs_link_1745224328628_95">
-                                <div class="oe_structure oe_empty">
-                                    <section class="s_text_block" style="background-image: none;">
-                                        <div class="container s_allow_columns">
-                                            <table class="table-striped table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Tên Bạn đọc</th>
-                                                        <th>Tên Sách</th>
-                                                        <th>Ngày Mượn</th>
-                                                        <th>Email bạn đọc</th>
-                                                        <th>Trạng Thái</th>
-                                                        <th>Ngày Trả</th>
-                                                        <th>Thời hạn mượn / (Tháng)</th>
-                                                        <th>Phạt</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <t t-foreach="ended_list" t-as="order">
-                                                        <tr>
-                                                            <td>
-                                                                <a t-attf-href="/desired_borrower/#{order.id}">
-                                                                    <span t-esc="order.code_id.name_borrower"/>
-                                                                </a>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.book_copy_list_ids.book_id.name"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.start_borrow"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.code_id.email"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.state"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.end_borrow"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.borrows_duration"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-esc="order.delay_duration"/>
-                                                            </td>
-                                                        </tr>
-                                                    </t>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </section>
+
+                            <!-- Tab: Kết thúc -->
+                            <div class="tab-pane fade" id="tab_ended" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Tên Bạn đọc</th>
+                                                <th>Tên Sách</th>
+                                                <th>Ngày Mượn</th>
+                                                <th>Email bạn đọc</th>
+                                                <th>Trạng Thái</th>
+                                                <th>Ngày Trả</th>
+                                                <th>Thời hạn (tháng)</th>
+                                                <th>Phạt</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="ended_list" t-as="order">
+                                                <tr>
+                                                    <td><a t-attf-href="/desired_borrower/#{order.id}"><span t-esc="order.code_id.name_borrower"/></a></td>
+                                                    <td><span t-esc="order.book_copy_list_ids.book_id.name"/></td>
+                                                    <td><span t-esc="order.start_borrow"/></td>
+                                                    <td><span t-esc="order.code_id.email"/></td>
+                                                    <td><span t-esc="order.state"/></td>
+                                                    <td><span t-esc="order.end_borrow"/></td>
+                                                    <td><span t-esc="order.borrows_duration"/></td>
+                                                    <td><span t-esc="order.delay_duration"/></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
+
 
         </t>
     </template>

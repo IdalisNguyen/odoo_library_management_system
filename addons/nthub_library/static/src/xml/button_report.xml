@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-inherit="web.PivotView.Buttons" t-inherit-mode="extension">
+        <xpath expr="//div[@class='btn-group'][2]" position="inside">
+            <button class="btn btn-secondary fa fa-file-excel-o o_pivot_download_custom"
+                    t-on-click="onClickDownloadCustomPivotXlsx"
+                    title="Tải Pivot Excel mẫu">
+                Xuất Excel Mẫu
+            </button>
+        </xpath>
+    </t>
+</templates>
