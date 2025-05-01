@@ -38,5 +38,6 @@ access_res_partner_library_read,res.partner read for library,base.model_res_part
 access_res_users_library_read,res.users read for library,base.model_res_users,nthub_library.library_group_user,1,0,0,0
 
 access_res_users_library_manager,create res.users,base.model_res_users,nthub_library.library_group_librarian,1,1,1,1
+access_books_borrows_report,books.data,model_books_borrows_report,nthub_library.library_group_manger,1,1,1,1
 
 

@@ -14,7 +14,8 @@
             <field name="nextcall"
                    eval="(DateTime.now().replace(hour=0, minute=0, second=1) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
         </record>
-                <!-- Cron compute 1 minutes delay book borrow -->
+
+            <!-- Cron compute 1 day delay book borrow -->
         <record id="ir_cron_update_delay_duration" model="ir.cron">
             <field name="name">Cập Nhật tiền phạt</field>
             <field name="model_id" ref="model_books_borrows"/>
@@ -27,6 +28,19 @@
             <field name="nextcall"
                    eval="(DateTime.now().replace(hour=0, minute=0, second=1) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
         </record>
+
+                <!-- Cron compute 1 minutes delay book borrow -->
+        <!-- <record id="ir_cron_update_delay_duration" model="ir.cron">
+            <field name="name">Cập Nhật tiền phạt</field>
+            <field name="model_id" ref="model_books_borrows"/>
+            <field name="state">code</field>
+            <field name="code">model.compute_delay_duration()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(minutes=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record> -->
 
         <record id="ir_cron_update_library_card_ended" model="ir.cron">
             <field name="name">Cập nhật Trạng Thái Thẻ Thư Viện</field>
@@ -52,11 +66,13 @@
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
             <field name="active">True</field>
+            <field name="nextcall"
+                   eval="(DateTime.now().replace(hour=0, minute=0, second=1) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
         </record>
 
 
         <!--Cron compute 1 minutes update state book reserve-->
-        <!-- <record id="ir_cron_update_status_book_reserve" model="ir.cron">
+        <!-- <record id="ir_cron_update_status_book_reserve_one_minute" model="ir.cron">
             <field name="name">Cập Nhật Trạng Thái Đặt Lịch</field>
             <field name="model_id" ref="model_book_copies"/>
             <field name="state">code</field>
