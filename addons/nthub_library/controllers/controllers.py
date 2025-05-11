@@ -203,15 +203,14 @@ class LibraryController(http.Controller):
 class CustomBorrowReportController(http.Controller):
 
     @http.route('/nthub_library/custom_borrow_report_xlsx', type='http', auth='user')
-    # def download_custom_borrow_report(self, model=None, domain=None, context=None, groupedBy=None, **kwargs):
     def download_custom_borrow_report(self, data, **kw):
         jdata = json.loads(data)
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
         worksheet = workbook.add_worksheet(jdata['title'])
 
-        header_bold = workbook.add_format({'bold': True, 'pattern': 1, 'bg_color': '#AAAAAA'})
-        header_plain = workbook.add_format({'pattern': 1, 'bg_color': '#AAAAAA'})
+        header_bold = workbook.add_format({'bold': True,  'bg_color': '#ffffff'})
+        header_plain = workbook.add_format({ 'bg_color': '#ffffff'})
         common_format = {
             'font_name': 'Times New Roman',
             'font_size': 12,
@@ -222,83 +221,105 @@ class CustomBorrowReportController(http.Controller):
         common_bold_format.update({'bold': True})
 
         format_heading = workbook.add_format({**common_bold_format, 'font_size': 14})
-
+        format_heading_underline = workbook.add_format({**common_bold_format, 'font_size': 14, 'underline': True})
+        format_topic = workbook.add_format({**common_bold_format, 'font_size': 16})
+        format_italic = workbook.add_format({**common_format, 'italic': True})
+        format_datetime = workbook.add_format({'align': 'right',  'font_name': 'Times New Roman','italic': True})
+        
         bold = workbook.add_format({'bold': True})
+
+        format_table = workbook.add_format({**common_bold_format})
+
 
         measure_count = jdata['measure_count']
         origin_count = jdata['origin_count']
 
         # Step 1: writing col group headers
         col_group_headers = jdata['col_group_headers']
-        
+        worksheet.set_column('A1:C1', 15)
+        worksheet.set_column('E1:G1', 15)
+        worksheet.set_column('C:E', 22)
+
         worksheet.merge_range('A1:C1', 'TRƯỜNG ĐẠI HỌC TÂY NGUYÊN ', format_heading)
-        worksheet.merge_range('E1:G1', 'CỘNG HÒA XÃHỘI CHỦNGHĨA VIỆT NAM ', format_heading)
+        worksheet.merge_range('E1:G1', 'CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', format_heading)
+        worksheet.merge_range('E2:G2', 'Độc lập - Tự do - Hạnh phúc', format_heading_underline)
+        worksheet.merge_range('E3:G3', 'Đắk Lắk, ngày …  tháng … năm 20…', format_datetime)
+        
+        
+        worksheet.merge_range('C4:E4', 'BÁO CÁO THỐNG KÊ KẾT QUẢ PHỤC VỤ NĂM …..', format_topic)
+        worksheet.merge_range('C5:E5', '(Từ ngày ….. đến ngày ….)', format_italic)
+        measure_headers = jdata['measure_headers']
+        origin_headers = jdata['origin_headers']
+        
 
         # x,y: current coordinates
         # carry: queue containing cell information when a cell has a >= 2 height
         #      and the drawing code needs to add empty cells below
-        x, y, carry = 1, 0, deque()
+        start_row = 6  # B7 tương đương hàng thứ 7 (0-indexed: 6)
+        start_col = 2  # B là cột thứ 2 (0-indexed: 1)
+
+        # Step 1: Write col_group_headers
+        carry = deque()
+        current_row = start_row
         for i, header_row in enumerate(col_group_headers):
-            worksheet.write(i, 0, '', header_plain)
+            worksheet.write(current_row, start_col - 1, '', bold)
+            current_col = start_col
             for header in header_row:
-                while (carry and carry[0]['x'] == x):
+                while carry and carry[0]['x'] == current_col:
                     cell = carry.popleft()
                     for j in range(measure_count * (2 * origin_count - 1)):
-                        worksheet.write(y, x+j, '', header_plain)
+                        worksheet.write(current_row, current_col + j, '', bold)
                     if cell['height'] > 1:
-                        carry.append({'x': x, 'height': cell['height'] - 1})
-                    x = x + measure_count * (2 * origin_count - 1)
+                        carry.append({'x': current_col, 'height': cell['height'] - 1})
+                    current_col += measure_count * (2 * origin_count - 1)
                 for j in range(header['width']):
-                    worksheet.write(y, x + j, header['title'] if j == 0 else '', header_plain)
+                    worksheet.write(current_row, current_col + j, header['title'] if j == 0 else '', bold)
                 if header['height'] > 1:
-                    carry.append({'x': x, 'height': header['height'] - 1})
-                x = x + header['width']
-            while (carry and carry[0]['x'] == x):
+                    carry.append({'x': current_col, 'height': header['height'] - 1})
+                current_col += header['width']
+            while carry and carry[0]['x'] == current_col:
                 cell = carry.popleft()
                 for j in range(measure_count * (2 * origin_count - 1)):
-                    worksheet.write(y, x+j, '', header_plain)
+                    worksheet.write(current_row, current_col + j, '', bold)
                 if cell['height'] > 1:
-                    carry.append({'x': x, 'height': cell['height'] - 1})
-                x = x + measure_count * (2 * origin_count - 1)
-            x, y = 1, y + 1
+                    carry.append({'x': current_col, 'height': cell['height'] - 1})
+                current_col += measure_count * (2 * origin_count - 1)
+            current_row += 1
 
-        # Step 2: writing measure headers
-        measure_headers = jdata['measure_headers']
-
+        # Step 2: Write measure_headers
         if measure_headers:
-            worksheet.write(y, 0, '', header_plain)
+            worksheet.write(current_row, start_col - 1, '', bold)
+            current_col = start_col
             for measure in measure_headers:
-                style = header_bold if measure['is_bold'] else header_plain
-                worksheet.write(y, x, measure['title'], style)
+                style =  bold
+                worksheet.write(current_row, current_col, measure['title'], style)
                 for i in range(1, 2 * origin_count - 1):
-                    worksheet.write(y, x+i, '', header_plain)
-                x = x + (2 * origin_count - 1)
-            x, y = 1, y + 1
-            # set minimum width of cells to 16 which is around 88px
-            worksheet.set_column(0, len(measure_headers), 16)
+                    worksheet.write(current_row, current_col + i, '', bold)
+                current_col += (2 * origin_count - 1)
+            worksheet.set_column(0, len(measure_headers) + start_col, 16)
+            current_row += 1
 
-        # Step 3: writing origin headers
-        origin_headers = jdata['origin_headers']
-
+        # Step 3: Write origin_headers
         if origin_headers:
-            worksheet.write(y, 0, '', header_plain)
+            worksheet.write(current_row, start_col - 1, '', bold)
+            current_col = start_col
             for origin in origin_headers:
-                style = header_bold if origin['is_bold'] else header_plain
-                worksheet.write(y, x, origin['title'], style)
-                x = x + 1
-            y = y + 1
+                style =  bold
+                worksheet.write(current_row, current_col, origin['title'], style)
+                current_col += 1
+            current_row += 1
 
-        # Step 4: writing data
-        x = 0
+        # Step 4: Write data rows
         for row in jdata['rows']:
-            worksheet.write(y, x, row['indent'] * '     ' + ustr(row['title']), header_plain)
+            current_col = start_col - 1
+            worksheet.write(current_row, current_col, row['indent'] * '     ' + ustr(row['title']), format_table)
             for cell in row['values']:
-                x = x + 1
+                current_col += 1
                 if cell.get('is_bold', False):
-                    worksheet.write(y, x, cell['value'], bold)
+                    worksheet.write(current_row, current_col, cell['value'], format_table)
                 else:
-                    worksheet.write(y, x, cell['value'])
-            x, y = 0, y + 1
+                    worksheet.write(current_row, current_col, cell['value'])
+            current_row += 1
 
         workbook.close()
         xlsx_data = output.getvalue()
