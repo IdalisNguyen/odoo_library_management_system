@@ -16,7 +16,7 @@
         </record>
 
             <!-- Cron compute 1 day delay book borrow -->
-        <record id="ir_cron_update_delay_duration" model="ir.cron">
+        <record id="ir_cron_update_delay_1day_duration" model="ir.cron">
             <field name="name">Cập Nhật tiền phạt</field>
             <field name="model_id" ref="model_books_borrows"/>
             <field name="state">code</field>
