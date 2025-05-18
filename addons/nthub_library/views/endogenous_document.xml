@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="view_endogenous_document_form" model="ir.ui.view">
+        <field name="name">library.endogenous_document.form</field>
+        <field name="model">library.endogenous_document</field>
+        <field name="arch" type="xml">
+            <form string="Tài liệu Nội sinh">
+                <header>
+                    <button name="preview_import_zip"
+                            type="object"
+                            string="Xem trước"
+                            class="btn-secondary"
+                            invisible="import_zip_file == False"/>
+                    <button name="action_open_assign_location_wizard"
+                            type="object"
+                            string="Phân loại vị trí lưu"
+                            class="btn-primary"
+                            invisible="is_assigned == True"/>
+
+                </header>
+                <sheet>
+                    <group>
+                        <field name="organization"/>
+                        <field name="department"/>
+                        <field name="document_type"/>
+                        <field name="academic_year"/>
+                        <field name="is_public"/>
+                        <field name="state" readonly="1"/>
+                        <field name="is_assigned" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="abstract"/>
+                    </group>
+                    <group string="Import từ ZIP (chỉ dùng khi thêm nhiều)">
+                        <field name="import_zip_file" filename="import_zip_filename"/>
+                    </group>
+                    <notebook>
+                        <page name="Dữ liệu sẽ được nhập">
+                            <field name="import_preview_line_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="document_type"/>
+                                    <field name="author"/>
+                                    <field name="code"/>
+                                    <field name="department"/>
+                                    <field name="major"/>
+                                    <field name="academic_year"/>
+                                    <field name="teacher"/>
+                                    <field name="is_public" optional="hidden"/>
+                                    <field name="filename"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>    
+
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_endogenous_document_tree" model="ir.ui.view">
+        <field name="name">library.endogenous_document.tree</field>
+        <field name="model">library.endogenous_document</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="document_type"/>
+                <field name="academic_year"/>
+                <field name="state"/>
+                <field name="is_public"/>
+            </tree>
+        </field>
+    </record>
+        <record id="action_endogenous_document" model="ir.actions.act_window">
+            <field name="name">Tài liệu Nội sinh</field>
+            <field name="res_model">library.endogenous_document</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_endogenous_document_tree"/>
+            <field name="domain">[]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Chưa có tài liệu nội sinh nào. Hãy tạo mới!
+                </p>
+                <p>
+                    Tài liệu nội sinh gồm: luận văn, luận án, báo cáo khoa học,... được tiếp nhận và lưu trữ phục vụ nghiên cứu &amp; đào tạo.
+                </p>
+            </field>
+        </record>
+        <record id="action_assign_location_wizard" model="ir.actions.act_window">
+            <field name="name">Phân loại tài liệu</field>
+            <field name="res_model">library.endogenous_document.assign_location_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+        <record id="view_assign_location_wizard_form" model="ir.ui.view">
+            <field name="name">assign.location.wizard.form</field>
+            <field name="model">library.endogenous_document.assign_location_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Chọn vị trí lưu tài liệu">
+                    <group>
+                        <field name="category_id"/>
+                        <field name="rack_id"/>
+                        <field name="shelf_id"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm_assign" type="object" string="Xác nhận" class="btn-primary"/>
+                        <button string="Hủy" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="view_library_import_success_form" model="ir.ui.view">
+            <field name="name">library.import.success.form</field>
+            <field name="model">library.endogenous.import.success</field>
+            <field name="arch" type="xml">
+                <form string="Thông báo">
+                    <group>
+                        <field name="message" readonly="1"/>
+                    </group>
+                    <footer>
+                        <button string="Đóng" class="btn-primary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_library_import_success" model="ir.actions.act_window">
+            <field name="name">Thông báo thành công</field>
+            <field name="res_model">library.endogenous.import.success</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+
+</odoo>

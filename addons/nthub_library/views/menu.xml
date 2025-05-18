@@ -7,6 +7,12 @@
             <menuitem name="Mua Đầu Sách" id="menu_2_purchase" action="purchase.purchase_rfq" sequence="1"/>
             <menuitem name="Đầu Sách" id="menu_3_purchase" action="stock.product_template_action_product" sequence="2"/>
             <menuitem name="Phiếu Nhập Kho" id="menu_4_purchase" action="stock.action_picking_tree_all" sequence="3"/>
+            <menuitem id="menu_library_endogenous_list" name="Danh sách"  action="action_endogenous_document" sequence="3"/>
+
+        </menuitem>
+        <!-- Tài liệu nội sinh -->
+        <menuitem id="menu_library_endogenous_root" name="Tài liệu Nội sinh" sequence="3">
+            <menuitem id="menu_library_endogenous_list" name="Danh sách"  action="action_endogenous_document" sequence="3"/>
         </menuitem>
 
         <menuitem name="Mượn/Trả" id="menu_2_borrow" sequence="3" groups="nthub_library.library_group_librarian,nthub_library.library_group_board_of_directors">

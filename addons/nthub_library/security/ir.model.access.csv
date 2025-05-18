@@ -39,5 +39,11 @@ access_res_users_library_read,res.users read for library,base.model_res_users,nt
 
 access_res_users_library_manager,create res.users,base.model_res_users,nthub_library.library_group_librarian,1,1,1,1
 access_books_borrows_report,books.data,model_books_borrows_report,nthub_library.library_group_manger,1,1,1,1
+access_library_endogenous_document,books.data,model_library_endogenous_document,nthub_library.library_group_manger,1,1,1,1
+access_library_endogenous_document_import_line,books.data,model_library_endogenous_document_import_line,nthub_library.library_group_manger,1,1,1,1
+access_library_organization,books.data,model_library_organization,nthub_library.library_group_manger,1,1,1,1
+access_library_department,books.data,model_library_department,nthub_library.library_group_manger,1,1,1,1
+access_library.endogenous_document.assign_location_wizard,books.data,model_library_endogenous_document_assign_location_wizard,nthub_library.library_group_manger,1,1,1,1
+access_library_endogenous_import_success,books.data,model_library_endogenous_import_success,nthub_library.library_group_manger,1,1,1,1
 
 

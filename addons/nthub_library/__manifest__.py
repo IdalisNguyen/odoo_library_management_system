@@ -33,6 +33,7 @@
         'views/templates.xml',
         'data/scheduled.xml',
         'report/books_borrows_report.xml',
+        'views/endogenous_document.xml',
         'views/menu.xml',
         'views/stock_quant.xml',
         
