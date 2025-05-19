@@ -5,6 +5,8 @@ import zipfile
 import tempfile
 import os
 import pandas as pd
+import logging
+_logger = logging.getLogger(__name__)
 
 class LibraryEndogenousDocument(models.Model):
     _name = 'library.endogenous_document'
@@ -86,23 +88,30 @@ class LibraryEndogenousDocument(models.Model):
 
                 preview_line = self.env['library.endogenous_document.import.line'].create(values)
 
-                # Nếu có file PDF tương ứng thì tạo attachment
+                # Gán file pdf tương ứng
                 filename = row.get('filename')
                 if filename:
-                    filename = str(filename).strip()  # ép kiểu và xóa khoảng trắng
-                    if filename:
-                        pdf_path = os.path.join(tmpdirname, filename)
-                        if os.path.exists(pdf_path):
-                            with open(pdf_path, 'rb') as f:
-                                file_data = f.read()
-                            self.env['ir.attachment'].create({
-                                'name': filename,
-                                'type': 'binary',
-                                'datas': base64.b64encode(file_data),
-                                'res_model': 'library.endogenous_document.import.line',
-                                'res_id': preview_line.id,
-                                'mimetype': 'application/pdf',
-                            })
+                    filename = str(filename).strip().replace('–', '-').replace(u'\xa0', ' ')
+                    pdf_path = None
+                    for root, dirs, files in os.walk(tmpdirname):
+                        for f in files:
+                            if f.strip().lower() == filename.strip().lower():
+                                pdf_path = os.path.join(root, f)
+                                break
+                        if pdf_path:
+                            break
+
+                    if pdf_path and os.path.exists(pdf_path):
+                        with open(pdf_path, 'rb') as f:
+                            pdf_binary = base64.b64encode(f.read())
+                        preview_line.write({
+                            'file_download': pdf_binary,
+                            'file_download_name': filename,
+                        })
+                        _logger.info(f"--Đã gán file {filename} cho dòng import {preview_line.id}")
+                    else:
+                        _logger.warning(f"Không tìm thấy file {filename} trong ZIP.")
+                                            
     def action_open_assign_location_wizard(self):
         self.ensure_one()
         return {
@@ -132,6 +141,8 @@ class EndogenousDocumentImportLine(models.TransientModel):
     teacher = fields.Char("Giáo viên hướng dẫn")
     department = fields.Char("Khoa")
     is_public = fields.Boolean("Công khai tra cứu?", default=True)
+    file_download = fields.Binary("Tải PDF", attachment=True)
+    file_download_name = fields.Char("Tên tệp PDF")
 
 
 
@@ -156,7 +167,7 @@ class AssignLocationWizard(models.TransientModel):
     category_id = fields.Many2one('books.category', string="Danh mục chính", required=True)
     rack_id = fields.Many2one('library.rack', string="Giá sách", required=True)
     shelf_id = fields.Many2one('library.shelf', string="Kệ sách", required=True)
-
+    
     def action_confirm_assign(self):
         BookData = self.env['books.data']
         BookCopies = self.env['book.copies']
@@ -179,6 +190,8 @@ class AssignLocationWizard(models.TransientModel):
                 'library_shelf_id': self.shelf_id.id,
                 'state': 'available',
                 'library_rack_id': self.rack_id.id,
+                'endogenous_document_id': True,
+                'file_download': line.file_download
             })
         self.document_id.is_assigned = True
         return {
