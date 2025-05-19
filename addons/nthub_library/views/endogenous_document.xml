@@ -49,7 +49,8 @@
                                     <field name="academic_year"/>
                                     <field name="teacher"/>
                                     <field name="is_public" optional="hidden"/>
-                                    <field name="filename"/>
+                                    <field name="file_download" filename="file_download_name"/>
+
                                 </tree>
                             </field>
                         </page>

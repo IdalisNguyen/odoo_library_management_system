@@ -16,6 +16,9 @@
                                 <field name="DK_CB"/>
                             </group>
                             <group>
+                                <field name="endogenous_document_id" invisible="1"/> 
+                                <field name="file_download" />
+
                                 <field name="library_shelf_id"/>
                                 <field name="library_rack_id"/>
                             </group>

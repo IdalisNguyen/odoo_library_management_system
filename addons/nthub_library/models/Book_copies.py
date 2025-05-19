@@ -46,6 +46,9 @@ class bookcopies(models.Model):
 
     library_shelf_id = fields.Many2one('library.shelf', string="Kệ Sách")
     library_rack_id = fields.Many2one('library.rack', related='library_shelf_id.rack_id', store=True, string="Giá Sách")
+    endogenous_document_id = fields.Boolean(string="Tài liệu nội sinh", default=False)
+    file_download = fields.Binary("Tải PDF", attachment=True)
+
 
     @api.depends('start_date', 'duration')
     def _get_end_date(self):

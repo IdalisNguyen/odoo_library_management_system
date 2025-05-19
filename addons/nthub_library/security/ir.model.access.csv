@@ -45,5 +45,6 @@ access_library_organization,books.data,model_library_organization,nthub_library.
 access_library_department,books.data,model_library_department,nthub_library.library_group_manger,1,1,1,1
 access_library.endogenous_document.assign_location_wizard,books.data,model_library_endogenous_document_assign_location_wizard,nthub_library.library_group_manger,1,1,1,1
 access_library_endogenous_import_success,books.data,model_library_endogenous_import_success,nthub_library.library_group_manger,1,1,1,1
+access_project_task,books.data,model_project_task,nthub_library.library_group_manger,1,1,1,1
 
 
