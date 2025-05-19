@@ -8,6 +8,7 @@ import io
 import json
 import xlsxwriter
 from collections import deque
+import base64
 
 class Borrows(CustomerPortal):
     def _prepare_home_portal_values(self, counters):
@@ -155,8 +156,12 @@ class LibraryController(http.Controller):
                 'copy_ids': copy_ids,
                 'borrowed_count': borrowed_count,
                 'book_reserved': book_reserved,
-                'block': block
+                'block': block,
+                'has_file': bool(book.copy_ids.filtered(lambda c: c.file_download)),
+                'first_file_copy': book.copy_ids.filtered(lambda c: c.file_download)[:1],  # lấy bản đầu tiên có file
+       
             })
+            
         paper = portal_pager(
             url=url,
             total=total_books,
@@ -164,7 +169,6 @@ class LibraryController(http.Controller):
             step=per_page,
             scope=5,
         )
-        
         return request.render('nthub_library.library_books_data', {
             'books_data': books_with_borrowed_count,
             'pager': paper,
@@ -330,3 +334,20 @@ class CustomBorrowReportController(http.Controller):
         )
 
         return response
+    
+    
+class LibraryPDFPreviewController(http.Controller):
+
+    @http.route('/library/endogenous_document/pdf/<int:copy_id>', type='http', auth='public', website=True)
+    def preview_pdf(self, copy_id):
+        copy = request.env['book.copies'].sudo().browse(copy_id)
+        if not copy.exists() or not copy.file_download:
+            return request.not_found()
+        
+        return request.make_response(
+            base64.b64decode(copy.file_download),
+            headers=[
+                ('Content-Type', 'application/pdf'),
+                ('Content-Disposition', f'inline; filename="{copy.DK_CB or 'preview'}.pdf"'),
+            ]
+        )
